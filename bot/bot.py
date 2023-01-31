@@ -1,12 +1,21 @@
 from aiogram import Bot, Dispatcher, executor, types
 
+from chat_request import OpenAIRequest
+
 
 class TelegramChatGPTBot:
 
-    def __init__(self, password: str, bot: Bot, dispatcher: Dispatcher):
+    def __init__(
+        self, 
+        password: str, 
+        bot: Bot, 
+        dispatcher: Dispatcher,
+        requester: OpenAIRequest
+    ):
         self.password = password
         self.bot = bot
         self.dispatcher = dispatcher
+        self.requester = requester
 
     async def cmd_start(self, message: types.Message):
         """
@@ -41,7 +50,7 @@ class TelegramChatGPTBot:
         """
         if message.from_user.id == self.user_id:
             # make API request to ChatGPT here and return the response
-            response = "This is a sample response from ChatGPT."
+            response = self.requester.send_request(message.text)
             await message.answer(response)
         else:
             # if user is not active, deny access
