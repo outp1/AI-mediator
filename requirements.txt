@@ -2,3 +2,5 @@ aiogram
 environs
 flask
 ipdb
+pytest
+pytest-asyncio

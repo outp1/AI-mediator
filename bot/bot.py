@@ -1,7 +1,5 @@
 from aiogram import Bot, Dispatcher, executor, types
 
-from bot.config import Config
-
 
 class TelegramChatGPTBot:
 

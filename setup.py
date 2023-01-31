@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher, executor, types
 
 from bot.bot import TelegramChatGPTBot
-from bot.config import Config
+from config import Config
 
 
 config = Config()
