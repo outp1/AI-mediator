@@ -6,7 +6,7 @@ import environs
 class Config:
     def __init__(self):
         env = environs.Env()
-        env.read_env(".env")
+        env.read_env()
         self.web_app_debug = env.bool("WEB_APP_DEBUG", False)
         self.web_app_port = env.int("WEB_APP_PORT", 5000)
         self.web_app_host = env.str("WEB_APP_HOST", "localhost")

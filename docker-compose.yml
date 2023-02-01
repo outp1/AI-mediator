@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+
+  bot:
+    container_name: "chatgpt-mediator-bot"
+    stop_signal: SIGINT
+    build:
+      context: .
+    working_dir: "/usr/src/app/$PROJECT_NAME"
+    volumes:
+    - .:/usr/src/app/$PROJECT_NAME
+    command: python3 -m setup
+    restart: always
