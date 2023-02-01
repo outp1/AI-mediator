@@ -22,5 +22,5 @@ tgbot = TelegramChatGPTBot(config.chatgpt_password, bot, dp, requester)
 tgbot.register()
 
 # Start the Bot
-if __name__ == '__main__':
+if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)

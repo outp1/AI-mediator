@@ -16,6 +16,5 @@ class Config:
         self.chatgpt_password = env.str("CHATGPT_PASSWORD")
         self.chatgpt_api_key = env.str("CHATGPT_API_KEY")
 
+
 config = Config()
-
-
