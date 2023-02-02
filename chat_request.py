@@ -4,7 +4,6 @@ import logging
 
 
 class OpenAIRequest:
-
     def __init__(self, config, api_key):
         self.logger = logging.getLogger(__name__)
         self.proxies = {
@@ -19,7 +18,12 @@ class OpenAIRequest:
         self.url = "https://api.openai.com/v1/completions"
 
     def send_request(
-        self, prompt, temperature=0, max_tokens=4000, model="text-davinci-003"
+        self,
+        prompt,
+        temperature=0,
+        max_tokens=4000,
+        model="text-davinci-003",
+        user=None,
     ):
         try:
             self.logger.info(f"prompt: {prompt}")
@@ -29,6 +33,8 @@ class OpenAIRequest:
                 "temperature": temperature,
                 "max_tokens": max_tokens,
             }
+            if user:
+                data["user"] = str(user)
             data = json.dumps(data)
             self.logger.info(f"sending request with data: {data}")
             response = requests.post(
@@ -48,9 +54,9 @@ class OpenAIRequest:
                 return (
                     f"failed to get response with status code: {response.status_code}"
                 )
-        except exception as e:
+        except Exception as e:
             self.logger.exception(f"failed to send request: {e}")
-            return none
+            return None
 
     def get_models_list(self):
         models = self._request_models()
@@ -58,13 +64,16 @@ class OpenAIRequest:
             return models["data"]
         else:
             return None
-    # TODO:    
+
+    # TODO:
 
     def _request_models(self):
         try:
             self.logger.info("Getting list of models")
             response = requests.get(
-                "https://api.openai.com/v1/models", headers=self.headers, proxies=self.proxies
+                "https://api.openai.com/v1/models",
+                headers=self.headers,
+                proxies=self.proxies,
             )
             self.logger.info(
                 f"Received response with status code: {response.status_code}"
@@ -87,7 +96,9 @@ class OpenAIRequest:
         try:
             self.logger.info(f"Getting model {model}")
             response = requests.get(
-                f"https://api.openai.com/v1/models/{model}", headers=self.headers, proxies=self.proxies
+                f"https://api.openai.com/v1/models/{model}",
+                headers=self.headers,
+                proxies=self.proxies,
             )
             self.logger.info(
                 f"Received response with status code: {response.status_code}"
