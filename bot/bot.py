@@ -7,8 +7,8 @@ from chat_request import OpenAIRequest
 
 
 class TelegramChatGPTBotConversation:
-
     chat_id: Optional[int] = None
+    accepted = False
 
     def __init__(
         self, password: str, bot: Bot, dispatcher: Dispatcher, requester: OpenAIRequest
@@ -17,27 +17,25 @@ class TelegramChatGPTBotConversation:
         self.bot = bot
         self.dispatcher = dispatcher
         self.requester = requester
-        self.user_id = None
+        self.entering_user_id = None
 
     async def cmd_start(self, message: types.Message):
         """
         Conversation's entry point.
         """
-        await message.answer(
-            text="Please enter the password"
-        )
-        self.user_id = message.from_user.id
+        await message.answer(text="Please enter the password")
+        self.entering_user_id = message.from_user.id
         self.chat_id = message.chat.id
 
     async def cmd_stop(self, message: types.Message):
         """
         Conversation's exit point.
         """
-        if message.from_user.id == self.user_id:
+        if message.from_user.id == self.entering_user_id:
             await self.bot.send_message(
                 chat_id=message.chat.id, text="Goodbye! I hope I was helpful."
             )
-            self.user_id = None
+            self.entering_user_id = None
         else:
             # if user is not active, deny access
             await message.answer("You do not have access to stop this conversation.")
@@ -46,15 +44,16 @@ class TelegramChatGPTBotConversation:
         """
         Handle password message
         """
-        if message.from_user.id == self.user_id:
-            if message.text == self.password:
-                await self.bot.send_message(chat_id=self.chat_id, text="Password accepted, how can I help you today?")
-            else:
-                await message.answer("Invalid password, access denied.")
-                self.user_id = None
+        if message.text == self.password:
+            self.accepted = True
+            self.entering_user_id = None
+            await self.bot.send_message(
+                chat_id=self.chat_id,
+                text="Password accepted, how can I help you today?",
+            )
         else:
-            # if user is not active, deny access
-            await message.answer("You do not have access to entering password.")
+            await message.answer("Invalid password, access denied.")
+            self.entering_user_id = None
 
     async def handle_text(self, message: types.Message):
         """
@@ -67,7 +66,7 @@ class TelegramChatGPTBotConversation:
             answer = self.requester.send_request(
                 message.text, user=message.from_user.id
             )
-            await message.answer(answer)
+            await message.reply(answer)
         else:
             # if user is not active, deny access
             await message.answer("You do not have access to use this bot.")
@@ -81,8 +80,10 @@ class TelegramChatGPTBotConversation:
         )
         self.dispatcher.register_message_handler(
             self.handle_password,
-            lambda m: m.from_user.id == self.user_id and m.text.startswith("pw-"),
+            lambda m: m.from_user.id == self.entering_user_id,
         )
         self.dispatcher.register_message_handler(
-            self.handle_text, lambda m: m.chat.id == self.chat_id, state="*"
+            self.handle_text,
+            lambda m: m.chat.id == self.chat_id and self.accepted,
+            state="*",
         )
