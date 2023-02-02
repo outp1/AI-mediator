@@ -21,7 +21,7 @@ class OpenAIRequest:
         self,
         prompt,
         temperature=0,
-        max_tokens=4000,
+        max_tokens=2024,
         model="text-davinci-003",
         user=None,
     ):
