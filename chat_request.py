@@ -56,7 +56,7 @@ class OpenAIRequest:
                 )
         except Exception as e:
             self.logger.exception(f"failed to send request: {e}")
-            return None
+            return (f"failed to send request: {e}")
 
     def get_models_list(self):
         models = self._request_models()
@@ -64,8 +64,6 @@ class OpenAIRequest:
             return models["data"]
         else:
             return None
-
-    # TODO:
 
     def _request_models(self):
         try:
