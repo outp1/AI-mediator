@@ -1,6 +1,7 @@
 from typing import Optional
+import logging
 
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, dispatcher, executor, types
 from aiogram.dispatcher.filters.state import State
 
 from chat_request import OpenAIRequest
@@ -9,6 +10,7 @@ from chat_request import OpenAIRequest
 class TelegramChatGPTBotConversation:
     chat_id: Optional[int] = None
     accepted = False
+    timeout = 0
 
     def __init__(
         self,
@@ -17,6 +19,7 @@ class TelegramChatGPTBotConversation:
         dispatcher: Dispatcher,
         requester: OpenAIRequest,
         admins=[],
+        timeout = 0
     ):
         self.password = password
         self.bot = bot
@@ -24,6 +27,7 @@ class TelegramChatGPTBotConversation:
         self.requester = requester
         self.entering_user_id = None
         self.admins = [*admins]
+        self.timeout = timeout
 
     async def cmd_start(self, message: types.Message):
         """
@@ -71,6 +75,15 @@ class TelegramChatGPTBotConversation:
         """
         Handle text messages
         """
+        if self.timeout > 0:
+            res = await self.dispatcher.throttle(
+                key="chatgpt",
+                rate=self.timeout,
+                user_id=message.from_user.id,
+                no_error=True
+            )
+            if res is False:
+                return await message.reply("Подожди 60 секунд перед тем как задавать ещё один вопрос")
         if message.text.startswith("!"):
             return  # option to send message and not to trigger bot
         if message.chat.id == self.chat_id:
@@ -107,3 +120,4 @@ class TelegramChatGPTBotConversation:
             commands=["stop"],
             state="*",
         )
+        self.dispatcher.throttled()
