@@ -75,6 +75,8 @@ class TelegramChatGPTBotConversation:
         """
         Handle text messages
         """
+        if message.text.startswith("!"):
+            return  # option to send message and not to trigger bot
         if self.timeout > 0:
             res = await self.dispatcher.throttle(
                 key="chatgpt",
@@ -84,8 +86,6 @@ class TelegramChatGPTBotConversation:
             )
             if res is False:
                 return await message.reply("Подожди 60 секунд перед тем как задавать ещё один вопрос")
-        if message.text.startswith("!"):
-            return  # option to send message and not to trigger bot
         if message.chat.id == self.chat_id:
             # make API request to ChatGPT here and return the response
             answer = self.requester.send_request(
