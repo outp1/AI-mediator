@@ -1,6 +1,8 @@
 import random
 from typing import Optional
 import logging
+from datetime import datetime
+import time
 
 from aiogram import Bot, Dispatcher, dispatcher, executor, types
 from aiogram.dispatcher.filters.state import State
@@ -88,14 +90,26 @@ class TelegramChatGPTBotConversation:
         if message.text.startswith("!"):
             return  # option to send message and not to trigger bot
         if self.timeout > 0:
-            res = await self.dispatcher.throttle(
-                key="chatgpt",
-                rate=self.timeout,
-                user_id=message.from_user.id,
-                no_error=True
-            )
-            if res is False:
-                return await message.reply(f"Подожди {self.timeout} секунд перед тем как задавать ещё один вопрос")
+            throttle_check = await self.dispatcher.check_key("chatgpt", user_id=message.from_user.id)
+            if throttle_check.result is False:
+                await self.dispatcher.throttle(
+                    key="chatgpt",
+                    rate=self.timeout,
+                    user_id=message.from_user.id,
+                    no_error=True
+                )
+            else:
+                if throttle_check.called_at + 60 > time.time():
+                    return await message.reply(
+                            f"Please wait {int(throttle_check.called_at + 60 - time.time())}"
+                            " seconds before making a new request."
+                    )
+                await self.dispatcher.throttle(
+                    key="chatgpt",
+                    rate=self.timeout,
+                    user_id=message.from_user.id,
+                    no_error=True
+                )
         if message.chat.id == self.chat_id:
             # make API request to ChatGPT here and return the response
             answer = self.requester.send_request(
