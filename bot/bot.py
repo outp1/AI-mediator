@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 import logging
 
@@ -21,6 +22,7 @@ class TelegramChatGPTBotConversation:
         admins=[],
         timeout = 0
     ):
+        self.conversation_id = "".join(random.choice(list("1234567890")) for i in range(6))
         self.password = password
         self.bot = bot
         self.dispatcher = dispatcher
@@ -33,11 +35,15 @@ class TelegramChatGPTBotConversation:
         """
         Conversation's entry point.
         """
+        if self.accepted:
+            return await message.reply("Password actually accepted")
         await message.answer(text="Please enter the password")
         self.entering_user_id = message.from_user.id
         self.chat_id = message.chat.id
         if message.chat.is_forum:
             self.message_thread_id = message.message_thread_id
+        else:
+            self.message_thread_id = None
 
     async def cmd_stop(self, message: types.Message):
         """
@@ -67,6 +73,10 @@ class TelegramChatGPTBotConversation:
                 message_thread_id=self.message_thread_id,
                 text="Password accepted, how can I help you today?",
             )
+            logging.info(
+                f"{message.from_user.mention} started new dialog with id {self.conversation_id}"
+                f" in {message.chat.mention}"
+            )
         else:
             await message.answer("Invalid password, access denied.")
             self.entering_user_id = None
@@ -85,7 +95,7 @@ class TelegramChatGPTBotConversation:
                 no_error=True
             )
             if res is False:
-                return await message.reply("Подожди 60 секунд перед тем как задавать ещё один вопрос")
+                return await message.reply(f"Подожди {self.timeout} секунд перед тем как задавать ещё один вопрос")
         if message.chat.id == self.chat_id:
             # make API request to ChatGPT here and return the response
             answer = self.requester.send_request(
@@ -120,4 +130,3 @@ class TelegramChatGPTBotConversation:
             commands=["stop"],
             state="*",
         )
-        self.dispatcher.throttled()
