@@ -112,7 +112,7 @@ class TelegramChatGPTBotConversation:
                 )
         if message.chat.id == self.chat_id:
             # make API request to ChatGPT here and return the response
-            answer = self.requester.send_request(
+            answer = await self.requester.send_request(
                 message.text, user=message.from_user.id
             )
             await message.reply(answer)
