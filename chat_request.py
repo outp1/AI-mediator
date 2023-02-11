@@ -1,11 +1,8 @@
-import requests
 import json
 import logging
 
 import aiohttp
-import asyncio
-import json
-import logging
+
 
 class OpenAIRequest:
 
@@ -20,12 +17,12 @@ class OpenAIRequest:
         self.url = "https://api.openai.com/v1/completions"
 
     async def send_request(
-        self,
-        prompt,
-        temperature=0,
-        max_tokens=2024,
-        model="text-davinci-003",
-        user=None,
+            self,
+            prompt,
+            temperature=0,
+            max_tokens=2024,
+            model="text-davinci-003",
+            user=None,
     ):
         try:
             self.logger.info(f"prompt: {prompt}")
@@ -41,10 +38,10 @@ class OpenAIRequest:
             self.logger.info(f"sending request with data: {data}")
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    self.url,
-                    headers=self.headers,
-                    data=data,
-                    proxy=self.proxy,
+                        self.url,
+                        headers=self.headers,
+                        data=data,
+                        proxy=self.proxy,
                 ) as resp:
                     if resp.status == 200:
                         text = await resp.json()
@@ -73,9 +70,9 @@ class OpenAIRequest:
             self.logger.info("Getting list of models")
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    "https://api.openai.com/v1/models",
-                    headers=self.headers,
-                    proxy=self.proxy,
+                        "https://api.openai.com/v1/models",
+                        headers=self.headers,
+                        proxy=self.proxy,
                 ) as resp:
                     if resp.status == 200:
                         models = await resp.json()
@@ -96,9 +93,9 @@ class OpenAIRequest:
             self.logger.info(f"Getting model {model}")
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"https://api.openai.com/v1/models/{model}",
-                    headers=self.headers,
-                    proxy=self.proxy,
+                        f"https://api.openai.com/v1/models/{model}",
+                        headers=self.headers,
+                        proxy=self.proxy,
                 ) as response:
                     self.logger.info(
                         f"Received response with status code: {response.status}"
