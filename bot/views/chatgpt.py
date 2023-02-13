@@ -16,17 +16,21 @@ controller = ChatGPTController()
 @dp.message_handler(commands=["start_conv"], state="*")
 async def start(message: Message):
     await message.reply(
-        text=await controller.start(StartBotArgs(
-            user_id=message.from_user.id,
-            chat_id=message.chat.id,
-            thread_id=message.message_thread_id if message.chat.is_forum else None
-        ))
+        text=await controller.start(
+            StartBotArgs(
+                user_id=message.from_user.id,
+                chat_id=message.chat.id,
+                thread_id=message.message_thread_id if message.chat.is_forum else None,
+            )
+        )
     )
 
 
 @dp.message_handler(controller.login_filters, state="*")
 async def login(message: Message):
-    await message.reply(await controller.login(message.chat.id, message.text, message.from_user.id))
+    await message.reply(
+        await controller.login(message.chat.id, message.text, message.from_user.id)
+    )
 
 
 @dp.message_handler(controller.process_message_filters, state="*")

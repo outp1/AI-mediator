@@ -10,7 +10,7 @@ async def throttle_user(message, dp):
             key="chatgpt",
             no_error=True,
             user_id=message.from_user.id,
-            rate=config.chat_timeout
+            rate=config.chat_timeout,
         )
     else:
         if throttle_check.called_at + 60 > time.time():

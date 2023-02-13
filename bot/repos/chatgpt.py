@@ -10,15 +10,18 @@ class OpenAIRepo:
         self.proxy = f"http://{config.proxy_auth}@{config.http_proxy_url}"
         self.headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {config.chatgpt_api_key}"
+            "Authorization": f"Bearer {config.chatgpt_api_key}",
         }
         self.session = aiohttp.ClientSession(headers=self.headers)
 
-    async def send_request(self, prompt,
-                           temperature=0,
-                           max_tokens=2024,
-                           model="text-davinci-003",
-                           user=None):
+    async def send_request(
+        self,
+        prompt,
+        temperature=0,
+        max_tokens=2024,
+        model="text-davinci-003",
+        user=None,
+    ):
         try:
             data = {
                 "model": model,
@@ -29,9 +32,7 @@ class OpenAIRepo:
             if user:
                 data["user"] = str(user)
             async with self.session.post(
-                    config.url,
-                    data=json.dumps(data),
-                    proxy=self.proxy
+                config.url, data=json.dumps(data), proxy=self.proxy
             ) as resp:
                 if resp.status != 200:
                     return f"failed to get response with status code: {resp.status}"

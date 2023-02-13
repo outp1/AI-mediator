@@ -20,14 +20,16 @@ class ChatGPTController:
             thread_id=args.thread_id,
             authorized=False,
             admins=[],
-            entering_user_id=args.user_id
+            entering_user_id=args.user_id,
         )
         self.chats[args.chat_id] = chat
         return "Please enter the password"
 
     def login_filters(self, message: Message):
-        return message.chat.id in self.chats.keys() and message.from_user.id == self.chats[
-            message.chat.id].entering_user_id
+        return (
+            message.chat.id in self.chats.keys()
+            and message.from_user.id == self.chats[message.chat.id].entering_user_id
+        )
 
     async def login(self, chat_id, password, user_id):
         chat = self.chats[chat_id]
@@ -48,19 +50,27 @@ class ChatGPTController:
         chat_id = message.chat.id
         thread_id = message.message_thread_id
         request = message.text
-        return chat_id in self.chats.keys() \
-            and self.chats[chat_id].authorized \
-            and self.chats[chat_id].thread_id == thread_id \
-            and not request.startswith("!") \
+        return (
+            chat_id in self.chats.keys()
+            and self.chats[chat_id].authorized
+            and self.chats[chat_id].thread_id == thread_id
+            and not request.startswith("!")
             and not request.startswith("/")
+        )
 
     async def process(self, request: str):
         return await self.repo.send_request(request)
 
     def logout_filters(self, message: Message):
-        return message.chat.id in self.chats.keys() \
-            and self.chats[message.chat.id].authorized \
-            and (not message.chat.is_forum or message.message_thread_id == self.chats[message.chat.id].thread_id)
+        return (
+            message.chat.id in self.chats.keys()
+            and self.chats[message.chat.id].authorized
+            and (
+                not message.chat.is_forum
+                or message.message_thread_id == self.chats[message.chat.id].thread_id
+            )
+        )
+
     async def logout(self, chat_id, user_id):
         chat = self.chats[chat_id]
         if user_id in chat.admins:

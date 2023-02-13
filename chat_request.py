@@ -5,7 +5,6 @@ import aiohttp
 
 
 class OpenAIRequest:
-
     def __init__(self, config, api_key):
         self.logger = logging.getLogger(__name__)
         self.proxy = f"http://{config.proxy_auth}@{config.http_proxy_url}"
@@ -17,12 +16,12 @@ class OpenAIRequest:
         self.url = "https://api.openai.com/v1/completions"
 
     async def send_request(
-            self,
-            prompt,
-            temperature=0,
-            max_tokens=2024,
-            model="text-davinci-003",
-            user=None,
+        self,
+        prompt,
+        temperature=0,
+        max_tokens=2024,
+        model="text-davinci-003",
+        user=None,
     ):
         try:
             self.logger.info(f"prompt: {prompt}")
@@ -38,10 +37,10 @@ class OpenAIRequest:
             self.logger.info(f"sending request with data: {data}")
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                        self.url,
-                        headers=self.headers,
-                        data=data,
-                        proxy=self.proxy,
+                    self.url,
+                    headers=self.headers,
+                    data=data,
+                    proxy=self.proxy,
                 ) as resp:
                     if resp.status == 200:
                         text = await resp.json()
@@ -51,9 +50,7 @@ class OpenAIRequest:
                         self.logger.error(
                             f"failed to get response with status code: {resp.status}"
                         )
-                        return (
-                            f"failed to get response with status code: {resp.status}"
-                        )
+                        return f"failed to get response with status code: {resp.status}"
         except Exception as e:
             self.logger.exception(f"failed to send request: {e}")
             return f"failed to send request: {e}"
@@ -70,9 +67,9 @@ class OpenAIRequest:
             self.logger.info("Getting list of models")
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                        "https://api.openai.com/v1/models",
-                        headers=self.headers,
-                        proxy=self.proxy,
+                    "https://api.openai.com/v1/models",
+                    headers=self.headers,
+                    proxy=self.proxy,
                 ) as resp:
                     if resp.status == 200:
                         models = await resp.json()
@@ -81,9 +78,7 @@ class OpenAIRequest:
                         self.logger.error(
                             f"failed to get response with status code: {resp.status}"
                         )
-                        return (
-                            f"failed to get response with status code: {resp.status}"
-                        )
+                        return f"failed to get response with status code: {resp.status}"
         except Exception as e:
             self.logger.exception(f"failed to send request: {e}")
             return f"failed to send request: {e}"
@@ -93,9 +88,9 @@ class OpenAIRequest:
             self.logger.info(f"Getting model {model}")
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                        f"https://api.openai.com/v1/models/{model}",
-                        headers=self.headers,
-                        proxy=self.proxy,
+                    f"https://api.openai.com/v1/models/{model}",
+                    headers=self.headers,
+                    proxy=self.proxy,
                 ) as response:
                     self.logger.info(
                         f"Received response with status code: {response.status}"
@@ -107,9 +102,7 @@ class OpenAIRequest:
                         self.logger.error(
                             f"Failed to get response with status code: {response.status}"
                         )
-                        return (
-                            f"Failed to get response with status code: {response.status}"
-                        )
+                        return f"Failed to get response with status code: {response.status}"
         except Exception as e:
             self.logger.exception(f"Failed to get model: {e}")
             return None
