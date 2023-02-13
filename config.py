@@ -1,20 +1,17 @@
-import os
-
-import environs
+from pydantic import BaseSettings, Field
 
 
-class Config:
-    def __init__(self):
-        env = environs.Env()
-        env.read_env()
-        self.web_app_debug = env.bool("WEB_APP_DEBUG", False)
-        self.web_app_port = env.int("WEB_APP_PORT", 5000)
-        self.web_app_host = env.str("WEB_APP_HOST", "localhost")
-        self.bot_token = env.str("BOT_TOKEN", "")
-        self.http_proxy_url = env.str("HTTP_PROXY_URL", "")
-        self.proxy_auth = env.str("PROXY_AUTH", "")
-        self.chatgpt_password = env.str("CHATGPT_PASSWORD")
-        self.chatgpt_api_key = env.str("CHATGPT_API_KEY")
+class Config(BaseSettings):
+    debugging: bool = Field(False, alias="WEB_APP_DEBUG")
+    web_app_port: int = 5000
+    web_app_host: str = "localhost"
+    bot_token: str
+    http_proxy_url: str
+    proxy_auth: str
+    chatgpt_password: str
+    chatgpt_api_key: str
+    chat_timeout: int = 60
+    openai_url: str = "https://api.openai.com/v1/completions"
 
 
 config = Config()
