@@ -1,14 +1,10 @@
-import requests
 import json
 import logging
 
 import aiohttp
-import asyncio
-import json
-import logging
+
 
 class OpenAIRequest:
-
     def __init__(self, config, api_key):
         self.logger = logging.getLogger(__name__)
         self.proxy = f"http://{config.proxy_auth}@{config.http_proxy_url}"
@@ -54,9 +50,7 @@ class OpenAIRequest:
                         self.logger.error(
                             f"failed to get response with status code: {resp.status}"
                         )
-                        return (
-                            f"failed to get response with status code: {resp.status}"
-                        )
+                        return f"failed to get response with status code: {resp.status}"
         except Exception as e:
             self.logger.exception(f"failed to send request: {e}")
             return f"failed to send request: {e}"
@@ -84,9 +78,7 @@ class OpenAIRequest:
                         self.logger.error(
                             f"failed to get response with status code: {resp.status}"
                         )
-                        return (
-                            f"failed to get response with status code: {resp.status}"
-                        )
+                        return f"failed to get response with status code: {resp.status}"
         except Exception as e:
             self.logger.exception(f"failed to send request: {e}")
             return f"failed to send request: {e}"
@@ -110,9 +102,7 @@ class OpenAIRequest:
                         self.logger.error(
                             f"Failed to get response with status code: {response.status}"
                         )
-                        return (
-                            f"Failed to get response with status code: {response.status}"
-                        )
+                        return f"Failed to get response with status code: {response.status}"
         except Exception as e:
             self.logger.exception(f"Failed to get model: {e}")
             return None
