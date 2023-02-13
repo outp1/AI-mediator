@@ -1,0 +1,18 @@
+name: Main
+
+on:
+  push:
+    branches: [ main dev ]
+  pull_request: 
+    branches: [ main dev ]
+
+jobs:
+  style:
+    name: Style Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Python Style Check
+        uses: weibullguy/python-lint-plus@v1.11.0
+        with:
+          use-pycodestyle: true
