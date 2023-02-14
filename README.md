@@ -1,5 +1,9 @@
-*This project contributed by ChatGPT
+# AI Mediator
 
-# My Project
+AI Mediator is an aggregator for AI models. The goal of this project is to spread artificial intelligence tools among mankind, making it easier to access them.
 
-A sample Python project with a bot and web app.
+*By the way, this project contributed by ChatGPT.*
+
+**Features:**
+- Telegram Bot for AI-conversations
+- OpenAI API adapter.
