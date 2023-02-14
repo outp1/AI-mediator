@@ -100,9 +100,13 @@ class OpenAIRequest:
                         return model_info
                     else:
                         self.logger.error(
-                            f"Failed to get response with status code: {response.status}"
+                            "Failed to get response with"
+                            f" status code: {response.status}"
                         )
-                        return f"Failed to get response with status code: {response.status}"
+                        return (
+                            f"Failed to get response with status "
+                            f"code: {response.status}"
+                        )
         except Exception as e:
             self.logger.exception(f"Failed to get model: {e}")
             return None
