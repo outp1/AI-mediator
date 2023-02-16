@@ -2,7 +2,7 @@ from typing import Dict
 
 from aiogram.types import Message
 
-from bot.models.chatgpt import StartBotArgs, ChatModel
+from bot.models.chatgpt import ChatModel, StartBotArgs
 from bot.repos.chatgpt import OpenAIRepo
 from config import config
 
