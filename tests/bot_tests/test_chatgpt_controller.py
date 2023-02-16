@@ -24,7 +24,7 @@ async def test_login_fail(chatgpt_controller):
 
 @pytest.mark.mock_response(
     url="https://api.openai.com/v1/completions",
-    method='POST',
+    method="POST",
     status=200,
     file="test-data/test_openai_response_200.json",
 )

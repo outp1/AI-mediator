@@ -27,8 +27,8 @@ class ChatGPTController:
 
     def login_filters(self, message: Message):
         return (
-                message.chat.id in self.chats.keys()
-                and message.from_user.id == self.chats[message.chat.id].entering_user_id
+            message.chat.id in self.chats.keys()
+            and message.from_user.id == self.chats[message.chat.id].entering_user_id
         )
 
     async def login(self, chat_id, password, user_id):
@@ -51,11 +51,11 @@ class ChatGPTController:
         thread_id = message.message_thread_id
         request = message.text
         return (
-                chat_id in self.chats.keys()
-                and self.chats[chat_id].authorized
-                and self.chats[chat_id].thread_id == thread_id
-                and not request.startswith("!")
-                and not request.startswith("/")
+            chat_id in self.chats.keys()
+            and self.chats[chat_id].authorized
+            and self.chats[chat_id].thread_id == thread_id
+            and not request.startswith("!")
+            and not request.startswith("/")
         )
 
     async def process(self, request: str, disable_proxy=False):
@@ -63,12 +63,12 @@ class ChatGPTController:
 
     def logout_filters(self, message: Message):
         return (
-                message.chat.id in self.chats.keys()
-                and self.chats[message.chat.id].authorized
-                and (
-                        not message.chat.is_forum
-                        or message.message_thread_id == self.chats[message.chat.id].thread_id
-                )
+            message.chat.id in self.chats.keys()
+            and self.chats[message.chat.id].authorized
+            and (
+                not message.chat.is_forum
+                or message.message_thread_id == self.chats[message.chat.id].thread_id
+            )
         )
 
     async def logout(self, chat_id, user_id):

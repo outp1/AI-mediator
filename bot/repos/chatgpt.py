@@ -15,13 +15,13 @@ class OpenAIRepo:
         self.session = aiohttp.ClientSession(headers=self.headers)
 
     async def send_request(
-            self,
-            prompt,
-            temperature=0,
-            max_tokens=2024,
-            model="text-davinci-003",
-            user=None,
-            disable_proxy: bool = False
+        self,
+        prompt,
+        temperature=0,
+        max_tokens=2024,
+        model="text-davinci-003",
+        user=None,
+        disable_proxy: bool = False,
     ):
         try:
             data = {
@@ -34,9 +34,7 @@ class OpenAIRepo:
             if user:
                 data["user"] = str(user)
 
-            kwargs = {
-                "data": json.dumps(data)
-            }
+            kwargs = {"data": json.dumps(data)}
 
             if not disable_proxy:
                 kwargs["proxy"] = self.proxy

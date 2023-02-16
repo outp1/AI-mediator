@@ -31,11 +31,23 @@ def mock_request(request):
         }
 
         params.update(marker.kwargs)
-        params.update({key: value for key, value in zip([i for i, j in params.items() if j is None], marker.args)})
+        params.update(
+            {
+                key: value
+                for key, value in zip(
+                    [i for i, j in params.items() if j is None], marker.args
+                )
+            }
+        )
 
-        aioresponses.add(params["url"], params["method"], params["status"], payload=json.load(open(params["file"])),
-                         repeat=True,
-                         headers=params["headers"])
+        aioresponses.add(
+            params["url"],
+            params["method"],
+            params["status"],
+            payload=json.load(open(params["file"])),
+            repeat=True,
+            headers=params["headers"],
+        )
     yield
     aioresponses.stop()
 

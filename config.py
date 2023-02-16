@@ -16,8 +16,8 @@ class Config(BaseSettings):
     openai_url: str = "https://api.openai.com/v1/completions"
 
     class Config:
-        env_file = 'tests/bot_tests/.env'
-        env_file_encoding = 'utf-8'
+        env_file = "tests/bot_tests/.env"
+        env_file_encoding = "utf-8"
 
 
 def prepare_environment():
