@@ -13,5 +13,9 @@ class Config(BaseSettings):
     chat_timeout: int = 60
     openai_url: str = "https://api.openai.com/v1/completions"
 
+    class Config:
+        env_file = '.env'
+        env_file_encoding = 'utf-8'
+
 
 config = Config()

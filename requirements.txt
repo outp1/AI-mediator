@@ -6,3 +6,4 @@ pytest
 pytest-asyncio
 requests
 pydantic
+python-dotenv
