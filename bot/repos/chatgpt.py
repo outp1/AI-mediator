@@ -15,12 +15,13 @@ class OpenAIRepo:
         self.session = aiohttp.ClientSession(headers=self.headers)
 
     async def send_request(
-        self,
-        prompt,
-        temperature=0,
-        max_tokens=2024,
-        model="text-davinci-003",
-        user=None,
+            self,
+            prompt,
+            temperature=0,
+            max_tokens=2024,
+            model="text-davinci-003",
+            user=None,
+            disable_proxy: bool = False
     ):
         try:
             data = {
@@ -29,11 +30,18 @@ class OpenAIRepo:
                 "temperature": temperature,
                 "max_tokens": max_tokens,
             }
+
             if user:
                 data["user"] = str(user)
-            async with self.session.post(
-                config.url, data=json.dumps(data), proxy=self.proxy
-            ) as resp:
+
+            kwargs = {
+                "data": json.dumps(data)
+            }
+
+            if not disable_proxy:
+                kwargs["proxy"] = self.proxy
+            async with self.session.post(config.openai_url, **kwargs) as resp:
+                print(resp)
                 if resp.status != 200:
                     return f"failed to get response with status code: {resp.status}"
 
