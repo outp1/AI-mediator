@@ -4,10 +4,7 @@ from config import config
 
 
 async def throttle_user(message, dp):
-    throttle_check = await dp.check_key(
-        "chatgpt",
-        user_id=message.from_user.id
-    )
+    throttle_check = await dp.check_key("chatgpt", user_id=message.from_user.id)
     if throttle_check.result is False:
         await dp.throttle(
             key="chatgpt",

@@ -5,19 +5,19 @@ from bot.repos.chatgpt import OpenAIRepo
 
 @pytest.mark.mock_response(
     url="https://api.openai.com/v1/completions",
-    method='POST',
+    method="POST",
     status=200,
     file="test-data/test_openai_response_200.json",
 )
 async def test_chatgpt_send_request(mock_request):
     repo = OpenAIRepo()
     result = await repo.send_request("hello openai", disable_proxy=True)
-    assert result == 'Hello World'
+    assert result == "Hello World"
 
 
 @pytest.mark.mock_response(
     url="https://api.openai.com/v1/completions",
-    method='POST',
+    method="POST",
     status=401,
     file="test-data/test_openai_response_200.json",
 )
