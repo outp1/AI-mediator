@@ -14,13 +14,13 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.asyncio)
 
 
-aioresponses = aioresponses()
+aioresponses_ = aioresponses()
 
 
 @pytest.fixture
 def mock_request(request):
     print("mocking request")
-    aioresponses.start()
+    aioresponses_.start()
     for marker in request.node.iter_markers("mock_response"):
         params = {
             "url": None,
@@ -40,7 +40,7 @@ def mock_request(request):
             }
         )
 
-        aioresponses.add(
+        aioresponses_.add(
             params["url"],
             params["method"],
             params["status"],
@@ -49,7 +49,7 @@ def mock_request(request):
             headers=params["headers"],
         )
     yield
-    aioresponses.stop()
+    aioresponses_.stop()
 
 
 @pytest.fixture()

@@ -63,7 +63,6 @@ venv.bak/
 # Pyre type checker
 .pyre/
 .idea/*
-tests/bot_tests/.env
 
 tags
 
@@ -71,4 +70,4 @@ tags
 
 ;
 
-
+.env

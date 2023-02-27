@@ -48,4 +48,4 @@ class OpenAIRepo:
             return f"failed to send request: {e}"
 
     def __del__(self):
-        self.session.close()
+        self.session.close()  # TODO: fix
