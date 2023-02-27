@@ -7,7 +7,7 @@ from bot.repos.chatgpt import OpenAIRepo
     url="https://api.openai.com/v1/completions",
     method="POST",
     status=200,
-    file="test-data/test_openai_response_200.json",
+    file="tests/bot_tests/test-data/test_openai_response_200.json",
 )
 async def test_chatgpt_send_request(mock_request):
     repo = OpenAIRepo()
@@ -19,7 +19,7 @@ async def test_chatgpt_send_request(mock_request):
     url="https://api.openai.com/v1/completions",
     method="POST",
     status=401,
-    file="test-data/test_openai_response_200.json",
+    file="tests/bot_tests/test-data/test_openai_response_200.json",
 )
 async def test_chatgpt_send_request_status_code_error(mock_request):
     repo = OpenAIRepo()
