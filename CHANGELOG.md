@@ -8,6 +8,7 @@
 - Added supporting for conversations in multi chats
 - Added rate limit for messages in OpenAI conversation
 - Added workflow for code style checking
+- Multiple passwords and admins values in config
 
 #### IMPROVEMENTS:
 - Migration to asynchronus request with aiohttp
