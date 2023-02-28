@@ -43,7 +43,7 @@ async def process_message(message: Message):
     await message.reply(text=answer)
 
 
-@dp.message_handler(controller.process_message_filters, commands=["stop"], state="*")
+@dp.message_handler(controller.logout_filters, commands=["stop"], state="*")
 async def logout(message: Message):
     answer = await controller.logout(message.chat.id, message.from_user.id)
     await message.answer(answer)
