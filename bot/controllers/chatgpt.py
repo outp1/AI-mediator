@@ -34,7 +34,7 @@ class ChatGPTController:
     async def login(self, chat_id, password, user_id):
         chat = self.chats[chat_id]
         result = "Invalid password, access denied."
-        if password == config.chatgpt_password and user_id == chat.entering_user_id:
+        if password in config.chatgpt_passwords and user_id == chat.entering_user_id:
             chat.authorized = True
             chat.admins.append(user_id)
             chat.entering_user_id = None
