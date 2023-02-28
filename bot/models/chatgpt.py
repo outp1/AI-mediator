@@ -8,7 +8,7 @@ from config import config
 class StartBotArgs(BaseModel):
     user_id: int
     chat_id: int
-    thread_id: Optional[int]
+    thread_id: Optional[int] = None
 
 
 class ChatModel(BaseModel):

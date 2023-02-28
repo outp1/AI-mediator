@@ -13,7 +13,7 @@ class ChatGPTController:
         self.repo = OpenAIRepo()
 
     async def start(self, args: StartBotArgs):
-        if args.chat_id not in self.chats.keys() or self.chats[args.chat_id].authorized:
+        if args.chat_id in self.chats.keys() and self.chats[args.chat_id].authorized:
             return "Password actually accepted"
         chat = ChatModel(
             chat_id=args.chat_id,
@@ -35,7 +35,7 @@ class ChatGPTController:
         chat = self.chats[chat_id]
         result = "Invalid password, access denied."
         if password == config.chatgpt_password and user_id == chat.entering_user_id:
-            chat.accepted = True
+            chat.authorized = True
             chat.admins.append(user_id)
             chat.entering_user_id = None
             self.chats[chat_id] = chat
@@ -58,8 +58,8 @@ class ChatGPTController:
             and not request.startswith("/")
         )
 
-    async def process(self, request: str):
-        return await self.repo.send_request(request)
+    async def process(self, request: str, disable_proxy=False):
+        return await self.repo.send_request(request, disable_proxy=disable_proxy)
 
     def logout_filters(self, message: Message):
         return (

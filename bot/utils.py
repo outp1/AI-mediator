@@ -18,5 +18,10 @@ async def throttle_user(message, dp):
                 f"Please wait {int(throttle_check.called_at + 60 - time.time())}"
                 " seconds before making a new request."
             )
-
-    return throttle_check.result
+            return True
+        await dp.throttle(
+            key="chatgpt",
+            rate=config.chat_timeout,
+            user_id=message.from_user.id,
+            no_error=True,
+        )
