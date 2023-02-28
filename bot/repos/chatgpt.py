@@ -43,7 +43,7 @@ class OpenAIRepo:
                 if resp.status != 200:
                     return f"failed to get response with status code: {resp.status}"
 
-                return (await resp.json())["choises"][0]["text"]
+                return (await resp.json())["choices"][0]["text"]
         except Exception as e:
             return f"failed to send request: {e}"
 
