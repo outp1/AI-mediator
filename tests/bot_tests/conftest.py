@@ -43,6 +43,6 @@ def mock_request(request):
     aioresponses_.stop()
 
 
-@pytest.fixture()
+@pytest.fixture
 def chatgpt_controller():
     yield ChatGPTController()

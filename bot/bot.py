@@ -3,7 +3,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot.controllers.chatgpt import ChatGPTController
 from bot.middlewares import ObjectsTransferMiddleware
-from bot.views.chatgpt import register_chatgpt_views
+from bot.handlers.chatgpt import register_chatgpt_handlers
 from config import config
 
 
@@ -11,8 +11,8 @@ def register_controllers(bot: Bot):
     bot["chatgpt_controller"] = ChatGPTController()
 
 
-def register_views(dp: Dispatcher):
-    register_chatgpt_views(dp, dp.bot["chatgpt_controller"])
+def register_handlers(dp: Dispatcher):
+    register_chatgpt_handlers(dp, dp.bot["chatgpt_controller"])
 
 
 def register_middlewares(dp: Dispatcher):
@@ -26,7 +26,7 @@ async def start_bot():
     bot["dp"] = dp
 
     register_controllers(bot)
-    register_views(dp)
+    register_handlers(dp)
     register_middlewares(dp)
 
     # start
