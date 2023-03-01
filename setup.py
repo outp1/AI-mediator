@@ -1,10 +1,6 @@
-import logging
+import asyncio
 
-from aiogram import executor
-
-from bot.views import chatgpt_dispatcher
-
-logging.basicConfig(level="DEBUG")
+from bot import start_bot
 
 if __name__ == "__main__":
-    executor.start_polling(chatgpt_dispatcher, skip_updates=True)
+    asyncio.run(start_bot())
