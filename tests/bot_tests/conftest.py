@@ -1,6 +1,5 @@
 import inspect
 import json
-import os
 
 import pytest
 from aioresponses import aioresponses
@@ -31,14 +30,6 @@ def mock_request(request):
         }
 
         params.update(marker.kwargs)
-        params.update(
-            {
-                key: value
-                for key, value in zip(
-                    [i for i, j in params.items() if j is None], marker.args
-                )
-            }
-        )
 
         aioresponses_.add(
             params["url"],
