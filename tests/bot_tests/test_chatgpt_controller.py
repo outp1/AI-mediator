@@ -12,7 +12,7 @@ async def test_start(chatgpt_controller):
 async def test_login_success(chatgpt_controller):
     await chatgpt_controller.start(StartBotArgs(user_id=1, chat_id=1))
 
-    result = await chatgpt_controller.login(1, config.chatgpt_password, 1)
+    result = await chatgpt_controller.login(1, config.chatgpt_passwords[0], 1)
     assert result == "Password accepted, how can I help you today?"
 
 
