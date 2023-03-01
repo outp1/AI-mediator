@@ -44,8 +44,7 @@ async def logout(message: Message, chatgpt_controller: ChatGPTController):
     await message.answer(answer)
 
 
-def register_chatgpt_views(dp: Dispatcher):
-    controller = ChatGPTController()
+def register_chatgpt_views(dp: Dispatcher, controller: ChatGPTController):
 
     dp.register_message_handler(start, commands=["start_conv"], state="*")
 
