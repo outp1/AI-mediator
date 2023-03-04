@@ -1,5 +1,7 @@
 pytest
 pycodestyle
 pytest-asyncio
-aioresponses
+pyrogram
+git+https://github.com/outp1/aioresponses.git
 httpx
+tgcrypto
