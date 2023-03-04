@@ -3,6 +3,15 @@ import os
 from pydantic import BaseSettings, Field
 
 
+class TestsFields(BaseSettings):
+    api_id: str = Field(None, env="tests_api_id")
+    api_hash: str = Field(None, env="tests_api_hash")
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 class Config(BaseSettings):
     admins: list[int]
     debugging: bool = Field(False, alias="WEB_APP_DEBUG")
@@ -15,25 +24,13 @@ class Config(BaseSettings):
     chatgpt_api_key: str
     chat_timeout: int = 60
     openai_url: str = "https://api.openai.com/v1/completions"
+    bot_name: str
+    tests = TestsFields()
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
 
-def prepare_environment():
-    os.environ["PROJECT_NAME"] = "ChatGPT_mediators"
-    os.environ["BOT_NAME"] = "ChatGPT_DEMO"
-    os.environ["BOT_TOKEN"] = "123:abc"
-    os.environ["HTTP_PROXY_URL"] = "0.0.0.0:8000"
-    os.environ["PROXY_AUTH"] = "user:password"
-    os.environ["CHATGPT_PASSWORD"] = "123"
-    os.environ["CHATGPT_API_KEY"] = ""
-
-
 config: Config
-try:
-    config = Config()
-except Exception:
-    prepare_environment()  # fixme
-    config = Config()
+config = Config()

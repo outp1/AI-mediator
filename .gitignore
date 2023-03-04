@@ -1,6 +1,3 @@
-# ENV
-chatgptBotEnv/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -71,3 +68,4 @@ tags
 ;
 
 .env
+*.session
