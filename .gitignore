@@ -69,3 +69,8 @@ tags
 
 .env
 *.session
+
+# Logs
+
+logs/
+*.log

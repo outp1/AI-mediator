@@ -1,8 +1,9 @@
+from typing import Literal
+
 from pydantic import BaseSettings, Field
 
 
 class BaseConfigSection(BaseSettings):
-
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
@@ -11,6 +12,13 @@ class BaseConfigSection(BaseSettings):
 class TestsFields(BaseConfigSection):
     api_id: str = Field(None, env="tests_api_id")
     api_hash: str = Field(None, env="tests_api_hash")
+
+
+class LoggingFields(BaseConfigSection):
+    logging_file: str
+    console_logging_level: Literal["DEBUG", "INFO", "ERROR", "CRITICAL"]
+    bot_token: str = Field("", env="logging_bot_token")
+    admins: list[int]
 
 
 class Config(BaseConfigSection):
@@ -27,6 +35,7 @@ class Config(BaseConfigSection):
     openai_url: str = "https://api.openai.com/v1/completions"
     bot_name: str
     tests = TestsFields()
+    logging = LoggingFields()
 
 
 config: Config
