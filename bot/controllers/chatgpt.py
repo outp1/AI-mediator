@@ -1,3 +1,4 @@
+import logging
 from typing import Dict
 
 from aiogram.types import Message
@@ -11,6 +12,7 @@ class ChatGPTController:
     def __init__(self):
         self.chats: Dict[int, ChatModel] = {}
         self.repo = OpenAIRepo()
+        self.logger = logging.getLogger("telegram_bot.ChatGPTController")
 
     async def start(self, args: StartBotArgs):
         if args.chat_id in self.chats.keys() and self.chats[args.chat_id].authorized:
@@ -23,6 +25,7 @@ class ChatGPTController:
             entering_user_id=args.user_id,
         )
         self.chats[args.chat_id] = chat
+        self.logger.debug("Started chat authorization")
         return "Please enter the password"
 
     def login_filters(self, message: Message):
@@ -38,10 +41,13 @@ class ChatGPTController:
             chat.authorized = True
             chat.admins.append(user_id)
             chat.entering_user_id = None
-            self.chats[chat_id] = chat
             result = "Password accepted, how can I help you today?"
+            self.logger.debug("Authorized new chat")
         else:
             chat.entering_user_id = None
+            self.logger.debug(
+                f"Authorization failed. Wrong password entered: {password}"
+            )
 
         self.chats[chat_id] = chat
         return result
@@ -59,7 +65,10 @@ class ChatGPTController:
         )
 
     async def process(self, request: str, disable_proxy=False):
-        return await self.repo.send_request(request, disable_proxy=disable_proxy)
+        self.logger.debug(f"Sending request with prompt:\n{request}")
+        answer = await self.repo.send_request(request, disable_proxy=disable_proxy)
+        self.logger.debug(f"The answer is:\n{answer}")
+        return answer
 
     def logout_filters(self, message: Message):
         return (
@@ -75,6 +84,7 @@ class ChatGPTController:
         chat = self.chats[chat_id]
         if user_id in chat.admins:
             self.chats.pop(chat_id)
+            self.logger.debug("User ended conversation")
             return "Goodbye! I hope I was helpful."
         else:
             return "You do not have access to stop this conversation."

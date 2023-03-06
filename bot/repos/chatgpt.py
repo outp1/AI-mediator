@@ -39,7 +39,6 @@ class OpenAIRepo:
             if not disable_proxy:
                 kwargs["proxy"] = self.proxy
             async with self.session.post(config.openai_url, **kwargs) as resp:
-                print(resp)
                 if resp.status != 200:
                     return f"failed to get response with status code: {resp.status}"
 

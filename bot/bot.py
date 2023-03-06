@@ -7,7 +7,6 @@ from bot.controllers.chatgpt import ChatGPTController
 from bot.handlers.chatgpt import register_chatgpt_handlers
 from bot.middlewares import ObjectsTransferMiddleware
 from config import config
-from logging_conf import prepare_logging
 
 logger = logging.getLogger("telegram_bot")
 
