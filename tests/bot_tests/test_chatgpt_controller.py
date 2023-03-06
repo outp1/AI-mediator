@@ -1,4 +1,4 @@
-import pytest
+import json
 
 from bot.models.chatgpt import StartBotArgs
 from config import config
@@ -23,12 +23,13 @@ async def test_login_fail(chatgpt_controller):
     assert result == "Invalid password, access denied."
 
 
-@pytest.mark.mock_response(
-    url="https://api.openai.com/v1/completions",
-    method="POST",
-    status=200,
-    file="tests/bot_tests/test-data/test_openai_response_200.json",
-)
-async def test_process(mock_request, chatgpt_controller):
+async def test_process(aioresponses, chatgpt_controller):
+    aioresponses.post(
+        url="https://api.openai.com/v1/completions",
+        status=200,
+        payload=json.load(
+            open("tests/bot_tests/test-data/test_openai_response_200.json")
+        ),
+    )
     result = await chatgpt_controller.process("some", disable_proxy=True)
     assert result == "Hello World"
