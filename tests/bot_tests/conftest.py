@@ -8,6 +8,9 @@ from pyrogram.client import Client
 from bot import start_bot
 from bot.controllers.chatgpt import ChatGPTController
 from config import config
+from logging_conf import prepare_logging
+
+prepare_logging()
 
 
 @pytest.fixture
