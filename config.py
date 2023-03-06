@@ -1,18 +1,19 @@
-import os
-
 from pydantic import BaseSettings, Field
 
 
-class TestsFields(BaseSettings):
-    api_id: str = Field(None, env="tests_api_id")
-    api_hash: str = Field(None, env="tests_api_hash")
+class BaseConfigSection(BaseSettings):
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
 
-class Config(BaseSettings):
+class TestsFields(BaseConfigSection):
+    api_id: str = Field(None, env="tests_api_id")
+    api_hash: str = Field(None, env="tests_api_hash")
+
+
+class Config(BaseConfigSection):
     admins: list[int]
     debugging: bool = Field(False, alias="WEB_APP_DEBUG")
     web_app_port: int = 5000
@@ -26,10 +27,6 @@ class Config(BaseSettings):
     openai_url: str = "https://api.openai.com/v1/completions"
     bot_name: str
     tests = TestsFields()
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 
 config: Config
