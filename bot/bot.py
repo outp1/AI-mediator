@@ -2,8 +2,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot.controllers.chatgpt import ChatGPTController
-from bot.middlewares import ObjectsTransferMiddleware
 from bot.handlers.chatgpt import register_chatgpt_handlers
+from bot.middlewares import ObjectsTransferMiddleware
 from config import config
 
 
