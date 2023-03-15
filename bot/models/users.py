@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Optional, Union, List
-from sqlalchemy import Integer
+from typing import List, Optional, Union
 
+from sqlalchemy import Integer
 from sqlalchemy.orm import Session
 
-from .orm.base import BaseRepository, REMOVED
+from .orm.base import REMOVED, BaseRepository
 from .orm.users import UserModel
 
 UserID = Integer

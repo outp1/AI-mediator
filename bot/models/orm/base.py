@@ -1,6 +1,6 @@
 import abc
-import uuid
 import datetime
+import uuid
 
 from sqlalchemy import TIMESTAMP, Column, Integer, MetaData
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,12 +14,7 @@ REMOVED = object()
 class BaseModel(Base):
     __abstract__ = True
 
-    id = Column(
-        BaseID,
-        nullable=False,
-        unique=True,
-        primary_key=True
-    )
+    id = Column(BaseID, nullable=False, unique=True, primary_key=True)
     created_at = Column(TIMESTAMP, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):

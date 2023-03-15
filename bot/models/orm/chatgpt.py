@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 
-from .base import BaseModel, BaseID
+from .base import BaseID, BaseModel
 from .users import UserModel
 
 

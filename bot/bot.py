@@ -4,13 +4,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import create_database, database_exists
 
 from bot.controllers import ChatGPTController, MenuController
 from bot.handlers import register_chatgpt_handlers, register_menu
 from bot.middlewares import ObjectsTransferMiddleware
-from bot.models.orm.base import Base
 from bot.models import UsersRepository
+from bot.models.orm.base import Base
 from config import config
 
 logger = logging.getLogger("telegram_bot")

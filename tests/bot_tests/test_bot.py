@@ -1,7 +1,7 @@
 from pyrogram.client import Client
 
-from config import config
 from bot.models.users import UsersRepository
+from config import config
 
 
 async def test_user_registering_at_start(session, setup_bot, telegram_client: Client):
