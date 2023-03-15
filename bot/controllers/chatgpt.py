@@ -3,21 +3,21 @@ from typing import Dict
 
 from aiogram.types import Message
 
-from bot.models.chatgpt import ChatModel, StartBotArgs
+from bot.models.chatgpt import Chat, StartBotArgs
 from bot.repos.chatgpt import OpenAIRepo
 from config import config
 
 
 class ChatGPTController:
     def __init__(self):
-        self.chats: Dict[int, ChatModel] = {}
+        self.chats: Dict[int, Chat] = {}
         self.repo = OpenAIRepo()
         self.logger = logging.getLogger("telegram_bot.ChatGPTController")
 
     async def start(self, args: StartBotArgs):
         if args.chat_id in self.chats.keys() and self.chats[args.chat_id].authorized:
             return "Password actually accepted"
-        chat = ChatModel(
+        chat = Chat(
             chat_id=args.chat_id,
             thread_id=args.thread_id,
             authorized=False,

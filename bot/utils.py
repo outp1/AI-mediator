@@ -1,5 +1,7 @@
 import time
 
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
 from config import config
 
 
@@ -25,3 +27,9 @@ async def throttle_user(message, dp):
             user_id=message.from_user.id,
             no_error=True,
         )
+
+
+def get_menu_keyboard():
+    kb = ReplyKeyboardMarkup(resize_keyboard=True)
+    kb.add(KeyboardButton(text="Общаться с ChatGPT \U0001f916"))
+    return kb
