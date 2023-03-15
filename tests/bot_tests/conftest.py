@@ -4,9 +4,13 @@ import inspect
 import pytest
 from aioresponses import aioresponses as aiorsp
 from pyrogram.client import Client
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session
+from sqlalchemy_utils import create_database, drop_database
 
 from bot import start_bot
 from bot.controllers.chatgpt import ChatGPTController
+from bot.models.orm.base import Base
 from config import config
 from logging_conf import prepare_logging
 
@@ -40,8 +44,30 @@ def chatgpt_controller():
 
 @pytest.fixture
 def setup_bot(event_loop):
+    config.db.database = "test"
     event_loop.create_task(start_bot())
     yield
+
+
+@pytest.fixture
+def database():
+    login_data = (
+        f"{config.db.login}:{config.db.password}@{config.db.host}:{config.db.port}"
+    )
+    engine = create_engine(f"postgresql://{login_data}/test")
+    try:
+        create_database(engine.url)
+        Base.metadata.create_all(engine)
+        Base.metadata.bind = engine
+        yield engine
+    finally:
+        drop_database(engine.url)
+
+
+@pytest.fixture
+def session(database):
+    sess = Session(database)
+    yield sess
 
 
 @pytest.fixture
