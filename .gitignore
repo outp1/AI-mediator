@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+__pycache__
 *.py[cod]
 *$py.class
 
@@ -63,7 +64,9 @@ venv.bak/
 
 tags
 
+# Kind of random files
 \\
+]
 
 ;
 

@@ -21,6 +21,14 @@ class LoggingFields(BaseConfigSection):
     admins: list[int]
 
 
+class Database(BaseConfigSection):
+    host: str = Field("", env="pg_host")
+    port: int = Field(5432, env="pg_port")
+    login: str = Field("", env="pg_login")
+    password: str = Field("", env="pg_password")
+    database: str = Field("", env="pg_dbname")
+
+
 class Config(BaseConfigSection):
     admins: list[int]
     debugging: bool = Field(False, alias="WEB_APP_DEBUG")
@@ -36,6 +44,7 @@ class Config(BaseConfigSection):
     bot_name: str
     tests = TestsFields()
     logging = LoggingFields()
+    db = Database()
 
 
 config: Config
