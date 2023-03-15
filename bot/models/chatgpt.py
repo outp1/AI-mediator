@@ -1,20 +1,18 @@
 from typing import List, Optional
-
-from pydantic import BaseModel
-from sqlalchemy import Column, ForeignKey, Integer, String
+from dataclasses import dataclass
 
 from config import config
-from .base import BaseModel as BaseAlchemyModel
-from .users import User
 
 
-class StartBotArgs(BaseModel):
+@dataclass
+class StartBotArgs:
     user_id: int
     chat_id: int
     thread_id: Optional[int] = None
 
 
-class ChatModel(BaseModel):
+@dataclass
+class Chat:
     chat_id: int
     thread_id: Optional[int]
     authorized: bool
@@ -23,26 +21,22 @@ class ChatModel(BaseModel):
     timeout = config.chat_timeout
 
 
-class Conversation(BaseAlchemyModel):
-    __tablename__ = "chatgpt_conversations"
-
-    chat_id = Column(Integer, nullable=False)
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-
-
-class ConversationRequest(BaseAlchemyModel):
-    __tablename__ = "chatgpt_conversation_requests"
-
-    chat_id = Column(
-        Integer,
-        ForeignKey(Conversation.id),
-        nullable=False,
-    )
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    prompt = Column(String, nullable=False)
-    answer = Column(String)
+@dataclass
+class ConversationRequest:
+    conversation_id: int
+    user_id: int
+    prompt: str
+    answer: str
 
 
-# TODO orm relation
-class ConversationRequests:
-    pass
+@dataclass
+class ConversationRequestsHistory:
+    conversation_id: int
+    requests: List[ConversationRequest]
+
+
+@dataclass
+class Conversation:
+    chat_id: int
+    created_by: int
+    history: ConversationRequestsHistory
