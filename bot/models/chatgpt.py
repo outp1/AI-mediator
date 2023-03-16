@@ -1,12 +1,10 @@
 from dataclasses import dataclass
-from re import L
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from bot.models.orm.base import REMOVED, BaseID, BaseRepository, Repository
+from bot.models.orm.base import BaseID, Repository
 from bot.models.orm.chatgpt import ConversationModel, ConversationRequestModel
-from bot.models.users import User
 from config import config
 
 

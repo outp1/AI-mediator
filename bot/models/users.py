@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Union
 
 from sqlalchemy import Integer
 from sqlalchemy.orm import Session

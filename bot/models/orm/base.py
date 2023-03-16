@@ -1,7 +1,7 @@
 import abc
 import datetime
 from dataclasses import fields
-from typing import Optional
+from typing import Union
 
 from sqlalchemy import TIMESTAMP, Column, Integer, MetaData
 from sqlalchemy.ext.declarative import declarative_base
