@@ -1,3 +1,4 @@
+from bot.models.orm.users import UserModel
 from bot.models.users import User, UsersRepository
 from utils.id_generator import generate_base_id
 
