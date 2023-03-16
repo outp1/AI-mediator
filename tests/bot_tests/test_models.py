@@ -1,6 +1,12 @@
-from bot.models.chatgpt import Conversation, ConversationRepository
+from bot.models.chatgpt import (
+    Conversation,
+    ConversationRequestsHistory,
+    ConversationsRepository,
+)
 from bot.models.users import User, UsersRepository
 from utils.id_generator import generate_base_id
+
+# TODO: tests should test only one unit of module, need refactor
 
 
 def test_users_repository(session):
@@ -34,7 +40,7 @@ def test_users_repository(session):
 
 
 def test_conversations_repository(session):
-    repository = ConversationRepository(session)
+    repository = ConversationsRepository(session)
     users_repository = UsersRepository(session)
 
     user = User(id=generate_base_id(users_repository.get_by_id), username="test")
@@ -70,3 +76,11 @@ def test_conversations_repository(session):
     # Can remove
     repository.remove(conversation2)
     assert len(repository.list()) == 1
+
+    # Can take requests history
+    conv_history = repository.get_conversation_requests_history(conversation.id)
+    assert type(conv_history) is ConversationRequestsHistory
+
+
+# TODO: Tests for other repos. Would be advisably to create the template
+#       for generate each other test

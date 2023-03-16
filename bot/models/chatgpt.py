@@ -48,10 +48,33 @@ class Conversation:
     created_by: int
 
 
-class ConversationRepository(Repository):
+class ConversationRequestsRepository(Repository):
+    def __init__(self, session: Session, identity_map=None):
+        self.session = session
+        self.repository_name = "conversation_request"
+        self._identity_map = identity_map or {self.repository_name: {}}
+        self.entity_class = ConversationRequest
+        self.model_class = ConversationRequestModel
+
+    def get_list_of_conversation_requests(self, conversation_id):
+        result = []
+        for request in self.list():
+            if request.conversation_id == conversation_id:
+                result.append(request)
+        return result
+
+
+class ConversationsRepository(Repository):
     def __init__(self, session: Session, identity_map=None):
         self.session = session
         self.repository_name = "conversations"
         self._identity_map = identity_map or {self.repository_name: {}}
         self.entity_class = Conversation
         self.model_class = ConversationModel
+
+    def get_conversation_requests_history(self, conversation_id):
+        requests_repo = ConversationRequestsRepository(self.session, self._identity_map)
+        return ConversationRequestsHistory(
+            conversation_id=conversation_id,
+            requests=requests_repo.get_list_of_conversation_requests(conversation_id),
+        )
