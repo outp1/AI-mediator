@@ -1,4 +1,4 @@
-from bot.models.orm.users import UserModel
+from bot.models.chatgpt import Conversation, ConversationRepository
 from bot.models.users import User, UsersRepository
 from utils.id_generator import generate_base_id
 
@@ -30,4 +30,43 @@ def test_users_repository(session):
 
     # Can remove
     repository.remove(user2)
+    assert len(repository.list()) == 1
+
+
+def test_conversations_repository(session):
+    repository = ConversationRepository(session)
+    users_repository = UsersRepository(session)
+
+    user = User(id=generate_base_id(users_repository.get_by_id), username="test")
+    users_repository.add(user)
+
+    conversation = Conversation(
+        id=generate_base_id(repository.get_by_id), chat_id=123456, created_by=user.id
+    )
+
+    # Can add
+    repository.add(conversation)
+    assert repository.get_by_id(conversation.id) == conversation
+
+    # Can persist
+    conversation.chat_id = 141414
+    repository.persist(conversation)
+    assert repository.get_by_id(conversation.id).chat_id == conversation.chat_id
+
+    # Can take list
+    conversation2 = Conversation(
+        id=generate_base_id(repository.get_by_id), chat_id=141451, created_by=user.id
+    )
+    repository.add(conversation2)
+    list_ = repository.list()
+    assert len(list_) == 2
+    assert type(list_[1]) is Conversation
+
+    # Can persist many
+    repository._identity_map["conversations"][conversation2.id].chat_id = 616616
+    repository.persist_all()
+    assert repository.get_by_id(conversation2.id).chat_id == 616616
+
+    # Can remove
+    repository.remove(conversation2)
     assert len(repository.list()) == 1

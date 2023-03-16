@@ -1,6 +1,12 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from re import L
+from typing import List, Optional, Union
 
+from sqlalchemy.orm import Session
+
+from bot.models.orm.base import REMOVED, BaseID, BaseRepository, Repository
+from bot.models.orm.chatgpt import ConversationModel, ConversationRequestModel
+from bot.models.users import User
 from config import config
 
 
@@ -37,6 +43,15 @@ class ConversationRequestsHistory:
 
 @dataclass
 class Conversation:
+    id: BaseID
     chat_id: int
     created_by: int
-    history: ConversationRequestsHistory
+
+
+class ConversationRepository(Repository):
+    def __init__(self, session: Session, identity_map=None):
+        self.session = session
+        self.repository_name = "conversations"
+        self._identity_map = identity_map or {self.repository_name: {}}
+        self.entity_class = Conversation
+        self.model_class = ConversationModel
