@@ -6,9 +6,10 @@ from aioresponses import aioresponses as aiorsp
 from pyrogram.client import Client
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
-from sqlalchemy_utils import create_database, drop_database
+from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from bot import start_bot
+from bot.controllers.bot import MenuController
 from bot.controllers.chatgpt import ChatGPTController
 from bot.models.orm.base import Base
 from config import config
@@ -38,8 +39,13 @@ def aioresponses():
 
 
 @pytest.fixture
-def chatgpt_controller():
-    yield ChatGPTController()
+def chatgpt_controller(session):
+    yield ChatGPTController(session, {})
+
+
+@pytest.fixture
+def menu_controller(session):
+    yield MenuController(session, {})
 
 
 @pytest.fixture
@@ -56,6 +62,8 @@ def database():
     )
     engine = create_engine(f"postgresql://{login_data}/test")
     try:
+        if database_exists(engine.url):
+            drop_database(engine.url)
         create_database(engine.url)
         Base.metadata.create_all(engine)
         Base.metadata.bind = engine
