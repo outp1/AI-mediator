@@ -9,7 +9,11 @@ from sqlalchemy_utils import create_database, database_exists
 from bot.controllers import ChatGPTController, MenuController
 from bot.handlers import register_chatgpt_handlers, register_menu
 from bot.middlewares import ObjectsTransferMiddleware
-from bot.models import UsersRepository
+from bot.models import (
+    ConversationRequestsRepository,
+    ConversationsRepository,
+    UsersRepository,
+)
 from bot.models.orm.base import Base
 from config import config
 
@@ -19,6 +23,8 @@ logger = logging.getLogger("telegram_bot")
 def init_repository(session):
     return {
         "users": UsersRepository(session).dict(),
+        "conversations": ConversationsRepository(session).dict(),
+        "conversation_requests": ConversationRequestsRepository(session).dict(),
     }
 
 
@@ -41,7 +47,7 @@ def init_db(bot: Bot):
 
 def register_controllers(bot: Bot):
     logger.debug("Registering controllers.")
-    bot["chatgpt_controller"] = ChatGPTController()
+    bot["chatgpt_controller"] = ChatGPTController(bot["session"], bot["db_repository"])
     bot["menu_controller"] = MenuController(bot["session"], bot["db_repository"])
 
 

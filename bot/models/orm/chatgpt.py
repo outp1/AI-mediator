@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, String
 
 from .base import BaseID, BaseModel
 from .users import UserModel
@@ -9,6 +9,7 @@ class ConversationModel(BaseModel):
 
     chat_id = Column(BaseID, nullable=False)
     created_by = Column(UserModel.id.type, ForeignKey(UserModel.id), nullable=False)
+    is_stopped = Column(Boolean, nullable=False, default=False)
 
 
 class ConversationRequestModel(BaseModel):

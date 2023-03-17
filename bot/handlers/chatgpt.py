@@ -35,7 +35,9 @@ async def process_message(
         if throttled:
             return
 
-    answer = await chatgpt_controller.process(message.text)
+    answer = await chatgpt_controller.process(
+        message.text, message.chat.id, message.chat.id
+    )
     await message.reply(text=answer)
 
 

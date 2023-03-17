@@ -27,6 +27,7 @@ class Chat:
 
 @dataclass
 class ConversationRequest:
+    id: int
     conversation_id: int
     user_id: int
     prompt: str
@@ -44,12 +45,13 @@ class Conversation:
     id: BaseID
     chat_id: int
     created_by: int
+    is_stopped: bool = False
 
 
 class ConversationRequestsRepository(Repository):
     def __init__(self, session: Session, identity_map=None):
         self.session = session
-        self.repository_name = "conversation_request"
+        self.repository_name = "conversation_requests"
         self._identity_map = identity_map or {self.repository_name: {}}
         self.entity_class = ConversationRequest
         self.model_class = ConversationRequestModel
@@ -76,3 +78,7 @@ class ConversationsRepository(Repository):
             conversation_id=conversation_id,
             requests=requests_repo.get_list_of_conversation_requests(conversation_id),
         )
+
+    def get_by_chat_id(self, chat_id):
+        result = self.session.query(self.model_class).filter_by(chat_id=chat_id).one()
+        return self.model_to_entity(result)

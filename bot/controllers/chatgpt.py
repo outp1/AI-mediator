@@ -1,18 +1,33 @@
 import logging
 from typing import Dict
 
+from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
+from sqlalchemy.orm import Session
 
-from bot.models.chatgpt import Chat, StartBotArgs
+from bot.models.chatgpt import (
+    Chat,
+    Conversation,
+    ConversationRequest,
+    ConversationRequestsRepository,
+    ConversationsRepository,
+    StartBotArgs,
+)
 from bot.repos.chatgpt import OpenAIRepo
 from config import config
+from utils.id_generator import generate_base_id
 
 
 class ChatGPTController:
-    def __init__(self):
+    def __init__(self, db_session: Session, db_repository: dict):
         self.chats: Dict[int, Chat] = {}
         self.repo = OpenAIRepo()
         self.logger = logging.getLogger("telegram_bot.ChatGPTController")
+        self.db_session = db_session
+        self.conversations_repo = ConversationsRepository(db_session, db_repository)
+        self.conv_requests_repo = ConversationRequestsRepository(
+            db_session, db_repository
+        )
 
     async def start(self, args: StartBotArgs):
         if args.chat_id in self.chats.keys() and self.chats[args.chat_id].authorized:
@@ -42,6 +57,14 @@ class ChatGPTController:
             chat.admins.append(user_id)
             chat.entering_user_id = None
             result = "Password accepted, how can I help you today?"
+            self.conversations_repo.add(
+                Conversation(
+                    generate_base_id(self.conversations_repo.get_by_id),
+                    chat_id,
+                    user_id,
+                )
+            )
+            self.db_session.commit()
             self.logger.debug("Authorized new chat")
         else:
             chat.entering_user_id = None
@@ -64,9 +87,20 @@ class ChatGPTController:
             and not request.startswith("/")
         )
 
-    async def process(self, request: str, disable_proxy=False):
+    async def process(self, request: str, chat_id, user_id, disable_proxy=False):
         self.logger.debug(f"Sending request with prompt:\n{request}")
         answer = await self.repo.send_request(request, disable_proxy=disable_proxy)
+        conversation_id = self.conversations_repo.get_by_chat_id(chat_id).id
+        self.conv_requests_repo.add(
+            ConversationRequest(
+                id=conversation_id,
+                conversation_id=conversation_id,
+                user_id=user_id,
+                prompt=request,
+                answer=answer,
+            )
+        )
+        self.db_session.commit()
         self.logger.debug(f"The answer is:\n{answer}")
         return answer
 
@@ -85,6 +119,16 @@ class ChatGPTController:
         if user_id in chat.admins:
             self.chats.pop(chat_id)
             self.logger.debug("User ended conversation")
+            conversation = self.conversations_repo.get_by_chat_id(chat_id)
+            conversation.is_stopped = True
+            self.conversations_repo.persist(conversation)
+            self.db_session.commit()
             return "Goodbye! I hope I was helpful."
         else:
             return "You do not have access to stop this conversation."
+
+    async def get_conversation_history(self, chat_id):
+        conversation_id = self.conversations_repo.get_by_chat_id(chat_id).id
+        return self.conversations_repo.get_conversation_requests_history(
+            conversation_id
+        )
