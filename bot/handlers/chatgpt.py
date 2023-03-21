@@ -1,5 +1,6 @@
 from aiogram import Dispatcher
-from aiogram.types import Message
+from aiogram.types import CallbackQuery, Message
+from aiogram.utils.exceptions import MessageToEditNotFound
 
 from bot.controllers.chatgpt import ChatGPTController
 from bot.models.chatgpt import StartBotArgs
@@ -46,6 +47,35 @@ async def logout(message: Message, chatgpt_controller: ChatGPTController):
     await message.answer(answer)
 
 
+async def admin_actions(message: Message, chatgpt_controller: ChatGPTController):
+    action, data = message.text.split(" ")[0], " ".join(message.text.split(" ")[0:])
+    action = action.split("_")[1]
+    if action == "conversations":
+        text, keyboard = await chatgpt_controller.get_conversations_pagination_text()
+        return await message.answer(text, reply_markup=keyboard)
+
+
+async def conversations_pagination(
+    call: CallbackQuery, chatgpt_controller: ChatGPTController, dp: Dispatcher
+):
+    page_number = int(call.data.split("_")[1])
+    if page_number < 0:
+        page_number = 0
+    text, keyboard = await chatgpt_controller.get_conversations_pagination_text(
+        page_number
+    )
+    try:
+        await dp.bot.edit_message_text(
+            text,
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=keyboard,
+        )
+    except MessageToEditNotFound:
+        await call.message.answer(text, reply_markup=keyboard)
+    await call.answer()
+
+
 def register_chatgpt_handlers(dp: Dispatcher, controller: ChatGPTController):
     dp.register_message_handler(start, commands=["start_conv"], state="*")
 
@@ -56,4 +86,13 @@ def register_chatgpt_handlers(dp: Dispatcher, controller: ChatGPTController):
 
     dp.register_message_handler(
         process_message, controller.process_message_filters, state="*"
+    )
+
+    dp.register_message_handler(
+        admin_actions, lambda m: m.text.startswith("/chatgpt_"), state="*"
+    )
+    dp.register_callback_query_handler(
+        conversations_pagination,
+        lambda c: c.data.startswith("convs-list-pagination_"),
+        state="*",
     )

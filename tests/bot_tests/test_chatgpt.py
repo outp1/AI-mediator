@@ -1,5 +1,6 @@
 import json
 import time
+import datetime
 
 from pyrogram.client import Client
 from pyrogram.types import Message
@@ -7,9 +8,11 @@ from sqlalchemy.orm import Session
 
 from bot.controllers.bot import MenuController
 from bot.controllers.chatgpt import ChatGPTController
-from bot.models import ConversationRequestsRepository, ConversationsRepository
-from bot.models.users import User
+from bot.models import ConversationsRepository
+from bot.models.users import User, UsersRepository
+from bot.models.chatgpt import Conversation
 from config import config
+from utils.id_generator import generate_base_id
 
 MAX_WAIT = 10
 
@@ -47,9 +50,7 @@ async def assert_last_messsage_text_in(client, chat_name, text):
     raise AssertionError
 
 
-async def login_conversation_in_direct(
-    client: Client, menu_controller: MenuController
-):
+async def login_conversation_in_direct(client: Client, menu_controller: MenuController):
     data = await client.get_me()
     await menu_controller.register_user(User(id=data.id, username=data.mention))
 
@@ -129,3 +130,31 @@ async def test_chatgpt_logout(
 
         repo = ConversationsRepository(session)
         assert (repo.get_by_chat_id(chat_id)).is_stopped is True
+
+
+async def test_conversations_list_pagination(telegram_client: Client, session):
+    async with telegram_client as client:
+        user = await client.get_me()
+        list_ = list(
+            {
+                "id": generate_base_id(),
+                "chat_id": generate_base_id(),
+                "is_stopped": False,
+                "created_at": datetime.datetime.now(),
+                "created_by": user.id,
+            } for i in range(50)
+        )
+        users_repo = UsersRepository(session)
+        users_repo.add(User(id=user.id, username=user.username))
+        session.commit()
+
+        convs_repo = ConversationsRepository(session)
+        for conv in list_:
+            convs_repo.add(Conversation(**conv))
+        session.commit()
+
+        await client.send_message(config.bot_name, "/chatgpt_conversations")
+        await assert_last_messsage_text_in(client, config.bot_name, "1. Чат")
+        msg = await get_last_message(client, config.bot_name)
+        await msg.click(1)
+        await assert_last_messsage_text_in(client, config.bot_name, "21. Чат")

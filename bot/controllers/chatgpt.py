@@ -1,8 +1,9 @@
+from datetime import datetime
 import logging
-from typing import Dict
+from typing import Dict, List, Optional
 
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from sqlalchemy.orm import Session
 
 from bot.models.chatgpt import (
@@ -28,6 +29,8 @@ class ChatGPTController:
         self.conv_requests_repo = ConversationRequestsRepository(
             db_session, db_repository
         )
+        for chat in self.conversations_repo.list():
+            self.chats[chat["chat_id"]] = chat
 
     async def start(self, args: StartBotArgs):
         if args.chat_id in self.chats.keys() and self.chats[args.chat_id].authorized:
@@ -62,6 +65,7 @@ class ChatGPTController:
                     generate_base_id(self.conversations_repo.get_by_id),
                     chat_id,
                     user_id,
+                    datetime.now(),
                 )
             )
             self.db_session.commit()
@@ -132,3 +136,58 @@ class ChatGPTController:
         return self.conversations_repo.get_conversation_requests_history(
             conversation_id
         )
+
+    async def _list_of_conversations_to_text(
+        self, list_: List[Conversation], start_count: int = 0
+    ):
+        convs = []
+        count = 1 + start_count
+        list_.sort(key=lambda c: c.created_at, reverse=True)
+        for conv in list_:
+            status = "В работе" if conv.is_stopped else "Остановлен"
+            try:
+                created_at = conv.created_at.strftime("%Y-%m-%d %H:%M")
+            except AttributeError:
+                created_at = conv.created_at
+            convs.append(
+                f"{count}. <code>Чат - {conv.chat_id} | Инициатор - {conv.created_by} "
+                f"| Время создания - {created_at} "
+                f"| Статус - {status} </code>| ID: <code>{conv.id}</code>"
+            )
+            count += 1
+        return "\n".join(convs)
+
+    async def get_conversations_pagination_text(
+        self, page_number: int = 0, convs_list: Optional[List[Conversation]] = None
+    ):
+        kb = InlineKeyboardMarkup()
+        kb.add(
+            InlineKeyboardButton(
+                text="<<",
+                callback_data=f"convs-list-pagination_{page_number - 1}",
+            ),
+            InlineKeyboardButton(
+                text=">>",
+                callback_data=f"convs-list-pagination_{page_number + 1}",
+            ),
+        )
+        if not convs_list:
+            convs_list = self.conversations_repo.list()
+        if len(convs_list) <= 20:
+            return (
+                await self._list_of_conversations_to_text(convs_list, page_number * 20),
+                kb,
+            )
+        if len(convs_list) == 0:
+            return "Список пока пуст", kb
+        else:
+            if (len(convs_list) - 20 * page_number) < 20:
+                stop = len(convs_list)
+            else:
+                stop = 20 * page_number + 20
+            return (
+                await self._list_of_conversations_to_text(
+                    convs_list[(20 * page_number) : stop], page_number * 20
+                ),
+                kb,
+            )

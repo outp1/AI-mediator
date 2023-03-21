@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
@@ -45,6 +46,7 @@ class Conversation:
     id: BaseID
     chat_id: int
     created_by: int
+    created_at: datetime = datetime.now()
     is_stopped: bool = False
 
 
