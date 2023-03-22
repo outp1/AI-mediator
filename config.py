@@ -21,7 +21,7 @@ class LoggingFields(BaseConfigSection):
     admins: list[int]
 
 
-class Database(BaseConfigSection):
+class DatabaseFields(BaseConfigSection):
     host: str = Field("", env="pg_host")
     port: int = Field(5432, env="pg_port")
     login: str = Field("", env="pg_login")
@@ -44,7 +44,7 @@ class Config(BaseConfigSection):
     bot_name: str
     tests = TestsFields()
     logging = LoggingFields()
-    db = Database()
+    db = DatabaseFields()
 
 
 config: Config

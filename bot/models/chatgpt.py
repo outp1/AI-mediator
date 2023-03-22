@@ -48,6 +48,7 @@ class Conversation:
     created_by: int
     created_at: datetime = datetime.now()
     is_stopped: bool = False
+    thread_id: Optional[int] = None
 
 
 class ConversationRequestsRepository(Repository):
@@ -81,6 +82,10 @@ class ConversationsRepository(Repository):
             requests=requests_repo.get_list_of_conversation_requests(conversation_id),
         )
 
-    def get_by_chat_id(self, chat_id):
-        result = self.session.query(self.model_class).filter_by(chat_id=chat_id).one()
+    def get_by_chat_id(self, chat_id, is_stopped=False):
+        result = (
+            self.session.query(self.model_class)
+            .filter_by(chat_id=chat_id, is_stopped=is_stopped)
+            .one()
+        )
         return self.model_to_entity(result)

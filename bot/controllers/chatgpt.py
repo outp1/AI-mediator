@@ -1,5 +1,7 @@
-from datetime import datetime
+import json
 import logging
+from datetime import datetime
+from io import StringIO
 from typing import Dict, List, Optional
 
 from aiogram.dispatcher import FSMContext
@@ -29,8 +31,14 @@ class ChatGPTController:
         self.conv_requests_repo = ConversationRequestsRepository(
             db_session, db_repository
         )
-        for chat in self.conversations_repo.list():
-            self.chats[chat["chat_id"]] = chat
+        for conv in self.conversations_repo.list():
+            self.chats[conv["chat_id"]] = Chat(
+                chat_id=conv["chat_id"],
+                thread_id=conv["thread_id"],
+                entering_user_id=conv["created_at"],
+                authorized=True,
+                admins=[conv["created_at"]],
+            )
 
     async def start(self, args: StartBotArgs):
         if args.chat_id in self.chats.keys() and self.chats[args.chat_id].authorized:
@@ -66,6 +74,7 @@ class ChatGPTController:
                     chat_id,
                     user_id,
                     datetime.now(),
+                    thread_id=chat.thread_id,
                 )
             )
             self.db_session.commit()
@@ -97,7 +106,7 @@ class ChatGPTController:
         conversation_id = self.conversations_repo.get_by_chat_id(chat_id).id
         self.conv_requests_repo.add(
             ConversationRequest(
-                id=conversation_id,
+                id=generate_base_id(),
                 conversation_id=conversation_id,
                 user_id=user_id,
                 prompt=request,
@@ -131,11 +140,27 @@ class ChatGPTController:
         else:
             return "You do not have access to stop this conversation."
 
-    async def get_conversation_history(self, chat_id):
-        conversation_id = self.conversations_repo.get_by_chat_id(chat_id).id
+    async def get_conversation_history(self, conversation_id):
         return self.conversations_repo.get_conversation_requests_history(
             conversation_id
         )
+
+    async def get_conversation_history_file(self, conversation_id):
+        history = await self.get_conversation_history(conversation_id)
+        data = []
+        for req in history.requests:
+            data.append(
+                {
+                    "id": req.id,
+                    "conversation_id": req.conversation_id,
+                    "user_id": req.user_id,
+                    "prompt": req.prompt,
+                    "answer": req.answer,
+                }
+            )
+        data = json.dumps(data)
+        f = StringIO(data)
+        return f
 
     async def _list_of_conversations_to_text(
         self, list_: List[Conversation], start_count: int = 0

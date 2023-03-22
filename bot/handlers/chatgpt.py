@@ -48,11 +48,22 @@ async def logout(message: Message, chatgpt_controller: ChatGPTController):
 
 
 async def admin_actions(message: Message, chatgpt_controller: ChatGPTController):
-    action, data = message.text.split(" ")[0], " ".join(message.text.split(" ")[0:])
+    action, data = message.text.split(" ")[0], " ".join(message.text.split(" ")[1:])
     action = action.split("_")[1]
     if action == "conversations":
         text, keyboard = await chatgpt_controller.get_conversations_pagination_text()
         return await message.answer(text, reply_markup=keyboard)
+    elif action == "gethistory":
+        text = ""
+        if data:
+            file = await chatgpt_controller.get_conversation_history_file(int(data))
+            await message.answer_document(
+                file, caption=f"История разговора с ID - <code>{data}</code>"
+            )
+        else:
+            return await message.answer(
+                "Укажите через пробел ID разговора для работы команды."
+            )
 
 
 async def conversations_pagination(

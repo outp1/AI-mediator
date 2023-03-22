@@ -1,6 +1,6 @@
+import datetime
 import json
 import time
-import datetime
 
 from pyrogram.client import Client
 from pyrogram.types import Message
@@ -9,8 +9,12 @@ from sqlalchemy.orm import Session
 from bot.controllers.bot import MenuController
 from bot.controllers.chatgpt import ChatGPTController
 from bot.models import ConversationsRepository
+from bot.models.chatgpt import (
+    Conversation,
+    ConversationRequest,
+    ConversationRequestsRepository,
+)
 from bot.models.users import User, UsersRepository
-from bot.models.chatgpt import Conversation
 from config import config
 from utils.id_generator import generate_base_id
 
@@ -142,7 +146,8 @@ async def test_conversations_list_pagination(telegram_client: Client, session):
                 "is_stopped": False,
                 "created_at": datetime.datetime.now(),
                 "created_by": user.id,
-            } for i in range(50)
+            }
+            for i in range(50)
         )
         users_repo = UsersRepository(session)
         users_repo.add(User(id=user.id, username=user.username))
@@ -158,3 +163,48 @@ async def test_conversations_list_pagination(telegram_client: Client, session):
         msg = await get_last_message(client, config.bot_name)
         await msg.click(1)
         await assert_last_messsage_text_in(client, config.bot_name, "21. Чат")
+
+
+async def test_convesation_history_getting(telegram_client: Client, session):
+    async with telegram_client as client:
+        user = await client.get_me()
+        users_repo = UsersRepository(session)
+        users_repo.add(User(id=user.id, username=user.username))
+        session.commit()
+
+        convs_repo = ConversationsRepository(session)
+        conv_id = generate_base_id()
+        convs_repo.add(Conversation(id=conv_id, chat_id=user.id, created_by=user.id))
+        session.commit()
+
+        requests_repo = ConversationRequestsRepository(session)
+        requests_repo.add(
+            ConversationRequest(
+                id=generate_base_id(),
+                conversation_id=conv_id,
+                user_id=user.id,
+                prompt="Hello",
+                answer="Hello World",
+            )
+        )
+        requests_repo.add(
+            ConversationRequest(
+                id=generate_base_id(),
+                conversation_id=conv_id,
+                user_id=user.id,
+                prompt="Bye",
+                answer="Bye, darling",
+            )
+        )
+        session.commit()
+
+        await client.send_message(config.bot_name, f"/chatgpt_gethistory {conv_id}")
+        await assert_last_messsage_text_in(
+            client, config.bot_name, f"История разговора с ID "
+        )
+        msg = await get_last_message(client, config.bot_name)
+        file = await client.download_media(msg, in_memory=True)
+        result = json.loads(file.getvalue().decode())
+
+        assert len(result) == 2
+        assert result[0]["conversation_id"] == conv_id
