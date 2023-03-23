@@ -102,7 +102,8 @@ class ChatGPTController:
 
     async def process(self, request: str, chat_id, user_id, disable_proxy=False):
         self.logger.debug(f"Sending request with prompt:\n{request}")
-        answer = await self.repo.send_request(request, disable_proxy=disable_proxy)
+        async with self.repo as repo:
+            answer = await repo.send_request(request, disable_proxy=disable_proxy)
         conversation_id = self.conversations_repo.get_by_chat_id(chat_id).id
         self.conv_requests_repo.add(
             ConversationRequest(

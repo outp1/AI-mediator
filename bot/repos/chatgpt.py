@@ -12,7 +12,13 @@ class OpenAIRepo:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {config.chatgpt_api_key}",
         }
+
+    async def __aenter__(self):
         self.session = aiohttp.ClientSession(headers=self.headers)
+        return self
+
+    async def __aexit__(self, *excinfo):
+        await self.session.close()
 
     async def send_request(
         self,
@@ -45,6 +51,3 @@ class OpenAIRepo:
                 return (await resp.json())["choices"][0]["text"]
         except Exception as e:
             return f"failed to send request: {e}"
-
-    def __del__(self):
-        self.session.close()  # TODO: fix

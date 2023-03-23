@@ -23,7 +23,7 @@ def event_loop():
     policy = asyncio.get_event_loop_policy()
     loop = policy.new_event_loop()
     yield loop
-    loop.close()
+    # loop.close()
 
 
 def pytest_collection_modifyitems(config, items):
@@ -51,8 +51,9 @@ def menu_controller(session):
 @pytest.fixture
 def setup_bot(event_loop):
     config.db.database = "test"
-    event_loop.create_task(start_bot())
+    task = event_loop.create_task(start_bot())
     yield
+    task.cancel()
 
 
 @pytest.fixture
