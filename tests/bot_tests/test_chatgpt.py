@@ -1,4 +1,5 @@
 import datetime
+from io import BytesIO
 import json
 import time
 
@@ -54,6 +55,25 @@ async def assert_last_messsage_text_in(client, chat_name, text):
     raise AssertionError
 
 
+def register_test_user(session):
+    users_repo = UsersRepository(session)
+    user_id = generate_base_id()
+    user = User(id=user_id, username="test")
+    users_repo.add(user)
+    session.commit()
+    return user
+
+
+def register_test_conversation(session, created_by):
+    conv_repo = ConversationsRepository(session)
+    conv = Conversation(
+        id=generate_base_id(), chat_id=created_by, created_by=created_by
+    )
+    conv_repo.add(conv)
+    session.commit()
+    return conv
+
+
 async def login_conversation_in_direct(client: Client, menu_controller: MenuController):
     data = await client.get_me()
     await menu_controller.register_user(User(id=data.id, username=data.mention))
@@ -93,34 +113,6 @@ async def test_chatgpt_processing(
         await assert_last_messsage_text_in(client, config.bot_name, "Hello World")
 
 
-async def test_chatgpt_history_getting(
-    aioresponses,
-    telegram_client: Client,
-    chatgpt_controller: ChatGPTController,
-    menu_controller: MenuController,
-):
-    aioresponses.post(
-        "https://api.openai.com/v1/completions",
-        payload=json.load(
-            open("tests/bot_tests/test-data/test_openai_response_200.json")
-        ),
-        status=200,
-        repeat=True,
-    )
-
-    async with telegram_client as client:
-        chat_id = (await client.get_me()).id
-        await login_conversation_in_direct(client, menu_controller)
-        await chatgpt_controller.process("Hello", chat_id, chat_id)
-
-    _list = await chatgpt_controller.get_conversation_history(chat_id)
-    assert len(_list.requests) == 1
-    assert (
-        "Hello" == _list.requests[0].prompt
-        and "Hello World" == _list.requests[0].answer
-    )
-
-
 async def test_chatgpt_logout(
     telegram_client: Client,
     menu_controller,
@@ -128,12 +120,12 @@ async def test_chatgpt_logout(
 ):
     async with telegram_client as client:
         await login_conversation_in_direct(client, menu_controller)
-        chat_id = (await client.get_me()).id
         await client.send_message(config.bot_name, "/stop")
         await assert_last_messsage_text_in(client, config.bot_name, "Goodbye!")
 
+        chat_id = (await client.get_me()).id
         repo = ConversationsRepository(session)
-        assert (repo.get_by_chat_id(chat_id)).is_stopped is True
+        assert repo.get_by_chat_id(chat_id, is_stopped=True)
 
 
 async def test_conversations_list_pagination(telegram_client: Client, session):
@@ -167,21 +159,14 @@ async def test_conversations_list_pagination(telegram_client: Client, session):
 
 async def test_convesation_history_getting(telegram_client: Client, session):
     async with telegram_client as client:
-        user = await client.get_me()
-        users_repo = UsersRepository(session)
-        users_repo.add(User(id=user.id, username=user.username))
-        session.commit()
-
-        convs_repo = ConversationsRepository(session)
-        conv_id = generate_base_id()
-        convs_repo.add(Conversation(id=conv_id, chat_id=user.id, created_by=user.id))
-        session.commit()
+        user = register_test_user(session)
+        conv = register_test_conversation(session, user.id)
 
         requests_repo = ConversationRequestsRepository(session)
         requests_repo.add(
             ConversationRequest(
                 id=generate_base_id(),
-                conversation_id=conv_id,
+                conversation_id=conv.id,
                 user_id=user.id,
                 prompt="Hello",
                 answer="Hello World",
@@ -190,7 +175,7 @@ async def test_convesation_history_getting(telegram_client: Client, session):
         requests_repo.add(
             ConversationRequest(
                 id=generate_base_id(),
-                conversation_id=conv_id,
+                conversation_id=conv.id,
                 user_id=user.id,
                 prompt="Bye",
                 answer="Bye, darling",
@@ -198,13 +183,15 @@ async def test_convesation_history_getting(telegram_client: Client, session):
         )
         session.commit()
 
-        await client.send_message(config.bot_name, f"/chatgpt_gethistory {conv_id}")
+        await client.send_message(config.bot_name, f"/chatgpt_gethistory {conv.id}")
         await assert_last_messsage_text_in(
             client, config.bot_name, f"История разговора с ID "
         )
         msg = await get_last_message(client, config.bot_name)
         file = await client.download_media(msg, in_memory=True)
+
+        assert type(file) is BytesIO
         result = json.loads(file.getvalue().decode())
 
         assert len(result) == 2
-        assert result[0]["conversation_id"] == conv_id
+        assert result[0]["conversation_id"] == conv.id

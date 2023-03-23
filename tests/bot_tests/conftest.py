@@ -76,6 +76,7 @@ def database():
 def session(database):
     sess = Session(database)
     yield sess
+    sess.close()
 
 
 @pytest.fixture
