@@ -12,9 +12,9 @@ class OpenAIRepo:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {config.chatgpt_api_key}",
         }
+        self.session = aiohttp.ClientSession(headers=self.headers)
 
     async def __aenter__(self):
-        self.session = aiohttp.ClientSession(headers=self.headers)
         return self
 
     async def __aexit__(self, *excinfo):

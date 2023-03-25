@@ -1,6 +1,6 @@
 from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, Message
-from aiogram.utils.exceptions import MessageToEditNotFound
+from aiogram.utils.exceptions import InvalidPeerID, MessageToEditNotFound
 
 from bot.controllers.chatgpt import ChatGPTController
 from bot.models.chatgpt import StartBotArgs
@@ -88,9 +88,8 @@ async def conversations_pagination(
 
 
 def register_chatgpt_handlers(dp: Dispatcher, controller: ChatGPTController):
-    dp.register_message_handler(
-        start, commands=["start_conv"], text="Общаться с ChatGPT \U0001f916", state="*"
-    )
+    dp.register_message_handler(start, commands=["start_gpt3"], state="*")
+    dp.register_message_handler(start, text="Общаться с ChatGPT \U0001f916", state="*")
 
     dp.register_message_handler(login, controller.login_filters, state="*")
     dp.register_message_handler(
@@ -102,10 +101,14 @@ def register_chatgpt_handlers(dp: Dispatcher, controller: ChatGPTController):
     )
 
     dp.register_message_handler(
-        admin_actions, lambda m: m.text.startswith("/chatgpt_"), state="*"
+        admin_actions,
+        lambda m: m.text.startswith("/chatgpt_"),
+        is_admin=True,
+        state="*",
     )
     dp.register_callback_query_handler(
         conversations_pagination,
         lambda c: c.data.startswith("convs-list-pagination_"),
+        is_admin=True,
         state="*",
     )

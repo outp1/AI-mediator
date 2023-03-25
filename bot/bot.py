@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists
 
 from bot.controllers import ChatGPTController, MenuController
-from bot.handlers import register_chatgpt_handlers, register_menu
+from bot.filters import AdminFilter
+from bot.handlers import register_admin, register_chatgpt_handlers, register_menu
 from bot.middlewares import ObjectsTransferMiddleware
 from bot.models import (
     ConversationRequestsRepository,
@@ -51,10 +52,15 @@ def register_controllers(bot: Bot):
     bot["menu_controller"] = MenuController(bot["session"], bot["db_repository"])
 
 
+def register_filters(dp: Dispatcher):
+    dp.filters_factory.bind(AdminFilter)
+
+
 def register_handlers(dp: Dispatcher):
     logger.debug("Registering handlers.")
     register_chatgpt_handlers(dp, dp.bot["chatgpt_controller"])
     register_menu(dp)
+    register_admin(dp)
 
 
 def register_middlewares(dp: Dispatcher):
@@ -73,6 +79,7 @@ async def start_bot():
     init_db(bot)
 
     register_controllers(bot)
+    register_filters(dp)
     register_handlers(dp)
     register_middlewares(dp)
 

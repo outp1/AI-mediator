@@ -1,16 +1,15 @@
 import json
-from io import TextIOWrapper
 
 from sqlalchemy.orm import Session
 
 from bot.controllers.chatgpt import ChatGPTController
-from bot.models.chatgpt import Chat, Conversation, ConversationsRepository, StartBotArgs
+from bot.models.chatgpt import Conversation, ConversationsRepository, StartBotArgs
 from bot.models.users import User, UsersRepository
 from config import config
 from utils.id_generator import generate_base_id
 
 
-def register_test_user(session):
+def register_test_user(session, user_id=123):
     users_repo = UsersRepository(session)
     user_id = generate_base_id()
     user = User(id=user_id, username="test")
@@ -29,9 +28,12 @@ def register_test_conversation(session, created_by):
     return conv
 
 
-async def test_start(chatgpt_controller):
-    result = await chatgpt_controller.start(StartBotArgs(user_id=1, chat_id=1))
-    assert result == "Please enter the password"
+async def test_start(chatgpt_controller, session):
+    user = register_test_user(session)
+    result = await chatgpt_controller.start(
+        StartBotArgs(user_id=user.id, chat_id=user.id)
+    )
+    assert "Здравствуйте, я ChatGPT 3" in result
 
 
 async def test_login_success(chatgpt_controller, session):
@@ -40,17 +42,8 @@ async def test_login_success(chatgpt_controller, session):
 
     await chatgpt_controller.start(StartBotArgs(user_id=user_id, chat_id=user_id))
 
-    result = await chatgpt_controller.login(
-        user_id, config.chatgpt_passwords[0], user_id
-    )
-    assert result == "Password accepted, how can I help you today?"
-
-
-async def test_login_fail(chatgpt_controller):
-    await chatgpt_controller.start(StartBotArgs(user_id=1, chat_id=1))
-
-    result = await chatgpt_controller.login(1, "000", 2)
-    assert result == "Invalid password, access denied."
+    result = await chatgpt_controller.login(user_id, user_id)
+    assert "Здравствуйте, я ChatGPT 3" in result
 
 
 async def test_process(aioresponses, chatgpt_controller, session):

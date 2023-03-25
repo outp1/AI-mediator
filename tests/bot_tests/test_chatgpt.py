@@ -2,13 +2,13 @@ import datetime
 import json
 import time
 from io import BytesIO
+from typing import Optional
 
 from pyrogram.client import Client
 from pyrogram.types import Message
 from sqlalchemy.orm import Session
 
 from bot.controllers.bot import MenuController
-from bot.controllers.chatgpt import ChatGPTController
 from bot.models import ConversationsRepository
 from bot.models.chatgpt import (
     Conversation,
@@ -36,7 +36,7 @@ def wait(fn):
     return modified_fn
 
 
-async def get_last_message(client, chat_name) -> Message:
+async def get_last_message(client, chat_name) -> Optional[Message]:
     async for message in client.get_chat_history(chat_name, limit=1):
         return message
 
@@ -78,12 +78,10 @@ async def login_conversation_in_direct(client: Client, menu_controller: MenuCont
     data = await client.get_me()
     await menu_controller.register_user(User(id=data.id, username=data.mention))
 
-    await client.send_message(config.bot_name, "/start_conv")
+    await client.send_message(config.bot_name, "/start_gpt3")
     await assert_last_messsage_text_in(
-        client, config.bot_name, "Please enter the password"
+        client, config.bot_name, "Здравствуйте, я ChatGPT 3"
     )
-    await client.send_message(config.bot_name, config.chatgpt_passwords[0])
-    await assert_last_messsage_text_in(client, config.bot_name, "Password accepted")
 
 
 async def test_chatgpt_login(
@@ -91,7 +89,6 @@ async def test_chatgpt_login(
 ):
     async with telegram_client as client:
         await login_conversation_in_direct(client, menu_controller)
-        await assert_last_messsage_text_in(client, config.bot_name, "Password accepted")
 
         assert len(ConversationsRepository(session).list()) == 1
 

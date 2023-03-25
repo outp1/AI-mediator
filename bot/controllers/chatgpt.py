@@ -4,7 +4,6 @@ from datetime import datetime
 from io import StringIO
 from typing import Dict, List, Optional
 
-from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from sqlalchemy.orm import Session
 
@@ -32,17 +31,18 @@ class ChatGPTController:
             db_session, db_repository
         )
         for conv in self.conversations_repo.list():
-            self.chats[conv["chat_id"]] = Chat(
-                chat_id=conv["chat_id"],
-                thread_id=conv["thread_id"],
-                entering_user_id=conv["created_at"],
-                authorized=True,
-                admins=[conv["created_at"]],
-            )
+            if not conv.is_stopped:
+                self.chats[conv.chat_id] = Chat(
+                    chat_id=conv.chat_id,
+                    thread_id=conv.thread_id,
+                    entering_user_id=conv.created_by,
+                    authorized=True,
+                    admins=[conv.created_by, *config.admins],
+                )
 
     async def start(self, args: StartBotArgs):
         if args.chat_id in self.chats.keys() and self.chats[args.chat_id].authorized:
-            return "Password actually accepted"
+            return "Вы уже разговариваете с ChatGPT 3"
         chat = Chat(
             chat_id=args.chat_id,
             thread_id=args.thread_id,
@@ -52,40 +52,36 @@ class ChatGPTController:
         )
         self.chats[args.chat_id] = chat
         self.logger.debug("Started chat authorization")
-        return "Please enter the password"
+        return await self.login(args.chat_id, args.user_id)
 
     def login_filters(self, message: Message):
         return (
             message.chat.id in self.chats.keys()
             and message.from_user.id == self.chats[message.chat.id].entering_user_id
+            and self.chats[message.chat.id].authorized is False
         )
 
-    async def login(self, chat_id, password, user_id):
+    async def login(self, chat_id, user_id):
         chat = self.chats[chat_id]
-        result = "Invalid password, access denied."
-        if password in config.chatgpt_passwords and user_id == chat.entering_user_id:
-            chat.authorized = True
-            chat.admins.append(user_id)
-            chat.entering_user_id = None
-            result = "Password accepted, how can I help you today?"
-            self.conversations_repo.add(
-                Conversation(
-                    generate_base_id(self.conversations_repo.get_by_id),
-                    chat_id,
-                    user_id,
-                    datetime.now(),
-                    thread_id=chat.thread_id,
-                )
+        chat.authorized = True
+        chat.admins.append(user_id)
+        chat.entering_user_id = None
+        result = (
+            "<b>\U0000270cЗдравствуйте, я ChatGPT 3. Вы можете задать мне "
+            "любой вопрос, и я на него отвечу.</b> \nЧтобы завершить "
+            "разговор со мной, введите /stop"
+        )
+        self.conversations_repo.add(
+            Conversation(
+                generate_base_id(self.conversations_repo.get_by_id),
+                chat_id,
+                user_id,
+                datetime.now(),
+                thread_id=chat.thread_id,
             )
-            self.db_session.commit()
-            self.logger.debug("Authorized new chat")
-        else:
-            chat.entering_user_id = None
-            self.logger.debug(
-                f"Authorization failed. Wrong password entered: {password}"
-            )
-
-        self.chats[chat_id] = chat
+        )
+        self.db_session.commit()
+        self.logger.debug("Authorized new chat")
         return result
 
     def process_message_filters(self, message: Message):
@@ -107,7 +103,7 @@ class ChatGPTController:
         conversation_id = self.conversations_repo.get_by_chat_id(chat_id).id
         self.conv_requests_repo.add(
             ConversationRequest(
-                id=generate_base_id(),
+                id=generate_base_id(self.conv_requests_repo.get_by_id),
                 conversation_id=conversation_id,
                 user_id=user_id,
                 prompt=request,
