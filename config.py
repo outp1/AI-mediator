@@ -39,7 +39,7 @@ class Config(BaseConfigSection):
     proxy_auth: str
     chatgpt_api_key: str
     chat_timeout: int = 60
-    openai_url: str = "https://api.openai.com/v1/completions"
+    openai_url: str = "https://api.openai.com/v1/chat/completions"
     bot_name: str
     tests = TestsFields()
     logging = LoggingFields()
