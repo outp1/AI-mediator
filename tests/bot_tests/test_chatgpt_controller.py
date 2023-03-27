@@ -9,10 +9,9 @@ from config import config
 from utils.id_generator import generate_base_id
 
 
-def register_test_user(session, user_id=123):
+def register_test_user(session, user_id=generate_base_id(), username="test"):
     users_repo = UsersRepository(session)
-    user_id = generate_base_id()
-    user = User(id=user_id, username="test")
+    user = User(id=user_id, username=username)
     users_repo.add(user)
     session.commit()
     return user
@@ -103,3 +102,14 @@ async def test_conversation_history_file_getting(
     result = json.load(file)
     assert len(result) == 2
     assert result[0]["answer"] == "Hello World"
+
+
+async def test_two_users_cannot_start_two_convs_in_same_chat(
+    chatgpt_controller: ChatGPTController, session: Session
+):
+    user1 = register_test_user(session)
+    user2 = register_test_user(session, 456, "test2")
+    await chatgpt_controller.start(StartBotArgs(user1.id, 321))
+    result = await chatgpt_controller.start(StartBotArgs(user2.id, 321))
+
+    assert "Вы уже разговариваете с ChatGPT 3" in result
