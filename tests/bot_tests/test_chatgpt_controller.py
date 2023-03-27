@@ -47,7 +47,7 @@ async def test_login_success(chatgpt_controller, session):
 
 async def test_process(aioresponses, chatgpt_controller, session):
     aioresponses.post(
-        url="https://api.openai.com/v1/completions",
+        url=config.openai_url,
         status=200,
         payload=json.load(
             open("tests/bot_tests/test-data/test_openai_response_200.json")
@@ -84,7 +84,7 @@ async def test_conversation_history_file_getting(
     aioresponses, chatgpt_controller: ChatGPTController, session: Session
 ):
     aioresponses.post(
-        url="https://api.openai.com/v1/completions",
+        url=config.openai_url,
         status=200,
         payload=json.load(
             open("tests/bot_tests/test-data/test_openai_response_200.json")

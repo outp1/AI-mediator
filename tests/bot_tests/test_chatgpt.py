@@ -97,7 +97,7 @@ async def test_chatgpt_processing(
     aioresponses, telegram_client: Client, menu_controller: MenuController
 ):
     aioresponses.post(
-        "https://api.openai.com/v1/completions",
+        config.openai_url,
         payload=json.load(
             open("tests/bot_tests/test-data/test_openai_response_200.json")
         ),
