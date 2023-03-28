@@ -3,13 +3,13 @@ import datetime
 from dataclasses import fields
 from typing import Union
 
-from sqlalchemy import TIMESTAMP, Column, Integer, MetaData
+from sqlalchemy import TIMESTAMP, BigInteger, Column, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
 
 Base = declarative_base()
 metadata = MetaData()
-BaseID = Integer
+BaseID = BigInteger
 REMOVED = object()
 
 
