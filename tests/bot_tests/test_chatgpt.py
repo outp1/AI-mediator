@@ -55,9 +55,10 @@ async def assert_last_messsage_text_in(client, chat_name, text):
     raise AssertionError
 
 
-def register_test_user(session):
+def register_test_user(session, user_id=None):
     users_repo = UsersRepository(session)
-    user_id = generate_base_id()
+    if not user_id:
+        user_id = generate_base_id()
     user = User(id=user_id, username="test")
     users_repo.add(user)
     session.commit()
@@ -94,7 +95,7 @@ async def test_chatgpt_login(
 
 
 async def test_chatgpt_processing(
-    aioresponses, telegram_client: Client, menu_controller: MenuController
+    aioresponses, telegram_client: Client, menu_controller: MenuController, session
 ):
     aioresponses.post(
         config.openai_url,
@@ -105,6 +106,8 @@ async def test_chatgpt_processing(
         repeat=True,
     )
     async with telegram_client as client:
+        user_id = (await client.get_me()).id
+        register_test_user(session, user_id)
         await login_conversation_in_direct(client, menu_controller)
         await client.send_message(config.bot_name, "Hello")
         await assert_last_messsage_text_in(client, config.bot_name, "Hello World")
