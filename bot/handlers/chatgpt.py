@@ -37,7 +37,7 @@ async def process_message(
             return
 
     answer = await chatgpt_controller.process(
-        message.text, message.chat.id, message.chat.id
+        message.text, message.chat.id, message.from_user.id
     )
     await message.reply(text=answer)
 
