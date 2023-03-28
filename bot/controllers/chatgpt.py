@@ -155,7 +155,7 @@ class ChatGPTController:
                     "answer": req.answer,
                 }
             )
-        data = json.dumps(data)
+        data = json.dumps(data, ensure_ascii=False)
         f = StringIO(data)
         return f
 
