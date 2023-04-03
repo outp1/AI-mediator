@@ -99,7 +99,7 @@ def register_chatgpt_handlers(dp: Dispatcher, controller: ChatGPTController):
     )
 
     dp.register_message_handler(
-        process_message, controller.process_message_filters, state="*"
+        process_message, controller.process_message_filters, state="*", is_user=True
     )
 
     dp.register_message_handler(

@@ -4,7 +4,7 @@ import inspect
 import pytest
 from aioresponses import aioresponses as aiorsp
 from pyrogram.client import Client
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists, drop_database
 

@@ -1,19 +1,18 @@
 from dataclasses import dataclass
-from typing import Union
 
-from sqlalchemy import Integer
 from sqlalchemy.orm import Session
 
-from .orm.base import REMOVED, BaseRepository, Repository
+from .orm.base import Repository
 from .orm.users import UserModel
 
-UserID = Integer
+UserID = int
 
 
 @dataclass
 class User:
     id: UserID
     username: str
+    privacy_policy: bool = True
 
 
 @dataclass

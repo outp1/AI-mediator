@@ -9,7 +9,12 @@ from sqlalchemy_utils import create_database, database_exists
 from bot.controllers import ChatGPTController, MenuController
 from bot.filters import AdminFilter
 from bot.filters.user_filter import UserFilter
-from bot.handlers import register_admin, register_chatgpt_handlers, register_menu
+from bot.handlers import (
+    register_admin,
+    register_chatgpt_handlers,
+    register_menu,
+    register_last,
+)
 from bot.middlewares import ObjectsTransferMiddleware
 from bot.models import (
     ConversationRequestsRepository,
@@ -54,6 +59,7 @@ def register_controllers(bot: Bot):
 
 
 def register_filters(dp: Dispatcher):
+    logger.debug("Registering filters.")
     dp.filters_factory.bind(AdminFilter)
     dp.filters_factory.bind(UserFilter)
 
@@ -63,6 +69,7 @@ def register_handlers(dp: Dispatcher):
     register_chatgpt_handlers(dp, dp.bot["chatgpt_controller"])
     register_menu(dp)
     register_admin(dp)
+    register_last(dp)
 
 
 def register_middlewares(dp: Dispatcher):

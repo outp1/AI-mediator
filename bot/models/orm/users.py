@@ -1,12 +1,13 @@
-from sqlalchemy import JSON, Column, ForeignKey, String
+from sqlalchemy import JSON, Boolean, Column, ForeignKey, String
 
-from .base import BaseModel, BaseRepository
+from .base import BaseModel
 
 
 class UserModel(BaseModel):
     __tablename__ = "users"
 
     username = Column(String, unique=True)
+    privacy_policy = Column(Boolean, default=True)
 
 
 class ModeratorModel(BaseModel):

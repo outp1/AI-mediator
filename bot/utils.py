@@ -1,6 +1,11 @@
 import time
 
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import (
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
 
 from config import config
 
@@ -33,3 +38,9 @@ def get_menu_keyboard():
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(KeyboardButton(text="Общаться с ChatGPT \U0001f916"))
     return kb
+
+
+def get_privacy_policy_keyboard():
+    return InlineKeyboardMarkup().add(
+        InlineKeyboardButton(text="Принять", callback_data="privacypolicyaccept")
+    )

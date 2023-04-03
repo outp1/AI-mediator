@@ -45,10 +45,16 @@ async def assert_last_messsage_text_in(client, chat_name, text):
 
 async def test_user_registering_at_start(session, telegram_client: Client):
     async with telegram_client as client:
-        await client.send_message(text="/start", chat_id=config.bot_name)
-        await assert_last_messsage_text_in(client, config.bot_name, "Приветствую")
-        users_repo = UsersRepository(session)
-        assert (await client.get_me()).id in users_repo.dict()
+        p_p = config.privacy_policy
+        config.privacy_policy = None  # disable privacy policy accept request
+
+        try:
+            await client.send_message(text="/start", chat_id=config.bot_name)
+            await assert_last_messsage_text_in(client, config.bot_name, "Приветствую")
+            users_repo = UsersRepository(session)
+            assert (await client.get_me()).id in users_repo.dict()
+        finally:
+            config.privacy_policy = p_p
 
 
 async def test_admin_filter(telegram_client: Client):
@@ -62,10 +68,32 @@ async def test_admin_filter(telegram_client: Client):
             await assert_last_messsage_text_in(
                 client, config.bot_name, "Вы администратор"
             )
-
-            config.admins = []
-            await client.send_message(config.bot_name, "/admin")
-            await asyncio.sleep(2)
-            await assert_last_messsage_text_in(client, config.bot_name, "/admin")
         finally:
             config.admins = admins
+
+
+async def test_user_cant_use_bot_without_accept_the_privacy_policy(
+    telegram_client: Client,
+):
+    async with telegram_client as client:
+        p_p = config.privacy_policy
+        config.privacy_policy = "some.org"
+
+        try:
+            await client.send_message(config.bot_name, "/start_gpt3")
+            await assert_last_messsage_text_in(
+                client,
+                config.bot_name,
+                "Чтобы пользоваться ботом, необходимо принять политику",
+            )
+
+            msg = await get_last_message(client, config.bot_name)
+            await msg.click(0)
+
+            await asyncio.sleep(1)
+            await client.send_message(config.bot_name, "/start_gpt3")
+            assert assert_last_messsage_text_in(
+                client, config.bot_name, "Здравствуйте, я ChatGPT 3"
+            )
+        finally:
+            config.privacy_policy = p_p

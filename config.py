@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseSettings, Field
 
@@ -41,6 +41,7 @@ class Config(BaseConfigSection):
     chat_timeout: int = 60
     openai_url: str = "https://api.openai.com/v1/chat/completions"
     bot_name: str
+    privacy_policy: Optional[str]  # If not specified, bot will not request accepting
     tests = TestsFields()
     logging = LoggingFields()
     db = DatabaseFields()
