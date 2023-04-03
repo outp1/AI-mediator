@@ -28,14 +28,17 @@ async def start(message: Message, menu_controller: MenuController):
 
 
 async def accept_privacy_policy(call: CallbackQuery, menu_controller: MenuController):
-    await menu_controller.register_user(
-        User(id=call.from_user.id, username=call.from_user.mention)
-    )
+    if call.message.reply_to_message.from_user.id == call.from_user.id:
+        await menu_controller.register_user(
+            User(id=call.from_user.id, username=call.from_user.mention)
+        )
 
-    await call.message.delete()
-    text, kb = await menu_controller.get_start_data()
-    await call.message.answer(text, reply_markup=kb)
-    await call.answer()
+        await call.message.delete()
+        text, kb = await menu_controller.get_start_data()
+        await call.message.answer(text, reply_markup=kb)
+        await call.answer()
+    else:
+        return
 
 
 async def not_user(update: Union[Message, CallbackQuery]):
