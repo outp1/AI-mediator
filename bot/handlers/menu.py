@@ -1,7 +1,7 @@
 from typing import Union
 
 from aiogram import Dispatcher
-from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 from sqlalchemy.orm import Session
 
 from bot.controllers import MenuController

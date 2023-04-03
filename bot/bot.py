@@ -12,8 +12,8 @@ from bot.filters.user_filter import UserFilter
 from bot.handlers import (
     register_admin,
     register_chatgpt_handlers,
-    register_menu,
     register_last,
+    register_menu,
 )
 from bot.middlewares import ObjectsTransferMiddleware
 from bot.models import (

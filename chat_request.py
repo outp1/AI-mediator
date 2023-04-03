@@ -96,7 +96,7 @@ class OpenAIRequest:
                         f"Received response with status code: {response.status}"
                     )
                     if response.status == 200:
-                        model_info = response.json()
+                        model_info = await response.json()
                         return model_info
                     else:
                         self.logger.error(
