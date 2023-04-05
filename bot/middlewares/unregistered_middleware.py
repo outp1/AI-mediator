@@ -1,10 +1,9 @@
 from aiogram.dispatcher.handler import CancelHandler
-
 from aiogram.dispatcher.middlewares import BaseMiddleware
-from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 
-from bot.utils import get_privacy_policy_keyboard
 from bot.filters.user_filter import UserFilter
+from bot.utils import get_privacy_policy_keyboard
 from config import config
 
 

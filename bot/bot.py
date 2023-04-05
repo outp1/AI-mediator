@@ -9,11 +9,7 @@ from sqlalchemy_utils import create_database, database_exists
 from bot.controllers import ChatGPTController, MenuController
 from bot.filters import AdminFilter
 from bot.filters.user_filter import UserFilter
-from bot.handlers import (
-    register_admin,
-    register_chatgpt_handlers,
-    register_menu,
-)
+from bot.handlers import register_admin, register_chatgpt_handlers, register_menu
 from bot.middlewares import ObjectsTransferMiddleware
 from bot.middlewares.unregistered_middleware import UnregisteredMiddleware
 from bot.models import (
