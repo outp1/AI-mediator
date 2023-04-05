@@ -159,7 +159,8 @@ async def test_conversations_list_pagination(telegram_client: Client, session):
 
 async def test_convesation_history_getting(telegram_client: Client, session):
     async with telegram_client as client:
-        user = register_test_user(session)
+        user_id = (await client.get_me()).id
+        user = register_test_user(session, user_id)
         conv = register_test_conversation(session, user.id)
 
         requests_repo = ConversationRequestsRepository(session)

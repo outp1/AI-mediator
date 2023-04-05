@@ -1,5 +1,3 @@
-import sys
-
 from aiogram.dispatcher.middlewares import LifetimeControllerMiddleware
 
 

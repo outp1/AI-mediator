@@ -40,7 +40,9 @@ def get_menu_keyboard():
     return kb
 
 
-def get_privacy_policy_keyboard():
+def get_privacy_policy_keyboard(user_id):
     return InlineKeyboardMarkup().add(
-        InlineKeyboardButton(text="Принять", callback_data="privacypolicyaccept")
+        InlineKeyboardButton(
+            text="Принять", callback_data=f"privacypolicyaccept_{user_id}"
+        )
     )

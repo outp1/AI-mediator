@@ -1,9 +1,7 @@
 import random
 
-from bot.models.orm.base import BaseID
 
-
-def generate_base_id(conn_func=None) -> BaseID:
+def generate_base_id(conn_func=None):
     return int(_generate_id(conn_func=conn_func))
 
 

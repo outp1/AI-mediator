@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 
 from pydantic import BaseSettings, Field
 
@@ -41,6 +41,10 @@ class Config(BaseConfigSection):
     chat_timeout: int = 60
     openai_url: str = "https://api.openai.com/v1/chat/completions"
     bot_name: str
+    unreg_ignore_commands: List[str] = [
+        "start",
+        "admin",
+    ]  # This commands would ignored by unregistered_middleware
     privacy_policy: Optional[str]  # If not specified, bot will not request accepting
     tests = TestsFields()
     logging = LoggingFields()

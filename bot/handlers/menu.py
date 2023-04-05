@@ -15,8 +15,8 @@ async def start(message: Message, menu_controller: MenuController):
     if config.privacy_policy and not user:
         return await message.answer(
             "Для пользования ботом, необходимо принять "
-            f"<a href='config.privacy_policy'>политику конфидициальности</a>.",
-            reply_markup=get_privacy_policy_keyboard(),
+            f"<a href='{config.privacy_policy}'>политику конфидициальности</a>.",
+            reply_markup=get_privacy_policy_keyboard(message.from_user.id),
         )
     else:
         if not user:
@@ -28,7 +28,8 @@ async def start(message: Message, menu_controller: MenuController):
 
 
 async def accept_privacy_policy(call: CallbackQuery, menu_controller: MenuController):
-    if call.message.reply_to_message.from_user.id == call.from_user.id:
+    user_id = int(call.data.split("_")[1])
+    if user_id == call.from_user.id:
         await menu_controller.register_user(
             User(id=call.from_user.id, username=call.from_user.mention)
         )
@@ -41,36 +42,11 @@ async def accept_privacy_policy(call: CallbackQuery, menu_controller: MenuContro
         return
 
 
-async def not_user(update: Union[Message, CallbackQuery]):
-    if config.privacy_policy:
-        text = (
-            "Чтобы пользоваться ботом, необходимо принять "
-            "политику конфидициальности - "
-            f"<a href='{config.privacy_policy}'>"
-            "Политика конфидициальности</a>"
-        )
-        kb = get_privacy_policy_keyboard()
-    else:
-        text = (
-            "Зарегистрируйтесь в боте для выполнения данного"
-            "действия. Это можно сделать в личных сообщениях"
-            "со мной с помощью команды /start"
-        )
-        kb = InlineKeyboardMarkup()
-    if isinstance(update, Message):
-        await update.reply(text, reply_markup=kb, disable_web_page_preview=True)
-    else:
-        await update.message.reply(text, reply_markup=kb, disable_web_page_preview=True)
-
-
 def register_menu(dp: Dispatcher):
     dp.register_message_handler(start, commands=["start"], state="*")
 
     dp.register_callback_query_handler(
-        accept_privacy_policy, text="privacypolicyaccept", state="*"
+        accept_privacy_policy,
+        lambda call: call.data.startswith("privacypolicyaccept_"),
+        state="*",
     )
-
-
-def register_last(dp: Dispatcher):
-    dp.register_message_handler(not_user, is_user=False, state="*")
-    dp.register_callback_query_handler(not_user, is_user=False, state="*")

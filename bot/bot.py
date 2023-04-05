@@ -12,10 +12,10 @@ from bot.filters.user_filter import UserFilter
 from bot.handlers import (
     register_admin,
     register_chatgpt_handlers,
-    register_last,
     register_menu,
 )
 from bot.middlewares import ObjectsTransferMiddleware
+from bot.middlewares.unregistered_middleware import UnregisteredMiddleware
 from bot.models import (
     ConversationRequestsRepository,
     ConversationsRepository,
@@ -61,7 +61,6 @@ def register_controllers(bot: Bot):
 def register_filters(dp: Dispatcher):
     logger.debug("Registering filters.")
     dp.filters_factory.bind(AdminFilter)
-    dp.filters_factory.bind(UserFilter)
 
 
 def register_handlers(dp: Dispatcher):
@@ -69,12 +68,12 @@ def register_handlers(dp: Dispatcher):
     register_chatgpt_handlers(dp, dp.bot["chatgpt_controller"])
     register_menu(dp)
     register_admin(dp)
-    register_last(dp)
 
 
 def register_middlewares(dp: Dispatcher):
     logger.debug("Registering middlewares.")
     dp.setup_middleware(ObjectsTransferMiddleware())
+    dp.setup_middleware(UnregisteredMiddleware())
 
 
 async def start_bot():
