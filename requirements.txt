@@ -8,3 +8,7 @@ requests
 pydantic
 python-dotenv
 aioresponses
+psycopg2-binary==2.9.1
+sqlalchemy
+sqlalchemy-utils
+pytz

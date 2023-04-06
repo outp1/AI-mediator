@@ -1,7 +1,9 @@
 {
-  "choices": [
-    {
-      "text": "Hello World"
-    }
-  ]
+	"choices": [
+		{
+			"message": {
+				"content": "Hello World"
+			}
+		}
+	]
 }

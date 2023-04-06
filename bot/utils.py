@@ -1,5 +1,12 @@
 import time
 
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+)
+
 from config import config
 
 
@@ -25,3 +32,17 @@ async def throttle_user(message, dp):
             user_id=message.from_user.id,
             no_error=True,
         )
+
+
+def get_menu_keyboard():
+    kb = ReplyKeyboardMarkup(resize_keyboard=True)
+    kb.add(KeyboardButton(text="Общаться с ChatGPT \U0001f916"))
+    return kb
+
+
+def get_privacy_policy_keyboard(user_id):
+    return InlineKeyboardMarkup().add(
+        InlineKeyboardButton(
+            text="Принять", callback_data=f"privacypolicyaccept_{user_id}"
+        )
+    )

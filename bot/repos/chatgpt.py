@@ -1,4 +1,5 @@
 import json
+import logging
 
 import aiohttp
 
@@ -12,21 +13,29 @@ class OpenAIRepo:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {config.chatgpt_api_key}",
         }
+        self.logger = logging.getLogger("telegram_bot.OpenAIRepo")
+
+    async def __aenter__(self):
         self.session = aiohttp.ClientSession(headers=self.headers)
+        return self
+
+    async def __aexit__(self, *excinfo):
+        await self.session.close()
 
     async def send_request(
         self,
         prompt,
-        temperature=0,
+        temperature=0.7,
         max_tokens=2024,
-        model="text-davinci-003",
+        model="gpt-3.5-turbo",
         user=None,
         disable_proxy: bool = False,
     ):
         try:
+            prompt = [{"role": "user", "content": prompt}]
             data = {
                 "model": model,
-                "prompt": prompt,
+                "messages": prompt,
                 "temperature": temperature,
                 "max_tokens": max_tokens,
             }
@@ -38,14 +47,13 @@ class OpenAIRepo:
 
             if not disable_proxy:
                 kwargs["proxy"] = self.proxy
+            self.logger.debug("Sending request to OpenAI")
             async with self.session.post(config.openai_url, **kwargs) as resp:
-                print(resp)
                 if resp.status != 200:
                     return f"failed to get response with status code: {resp.status}"
 
-                return (await resp.json())["choices"][0]["text"]
+                result = await resp.json()
+                self.logger.debug(f"Response is: \n{result}")
+                return result["choices"][0]["message"]["content"]
         except Exception as e:
             return f"failed to send request: {e}"
-
-    def __del__(self):
-        self.session.close()  # TODO: fix

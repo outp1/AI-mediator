@@ -2,8 +2,21 @@ version: '3.3'
 
 services:
 
+  db:
+    container_name: "ai-mediator-database"
+    image: postgres:13
+    restart: always
+    env_file:
+      - '.env'
+    volumes:
+      - ./volumes/postgresql:/home/postgres
+    environment:
+        - PGDATA=/home/postgres/data/pgdata
+    ports:
+      - 5430:5432
+
   bot:
-    container_name: "chatgpt-mediator-bot"
+    container_name: "ai-mediator-bot"
     stop_signal: SIGINT
     build:
       context: .
@@ -12,3 +25,16 @@ services:
     - .:/usr/src/app/$PROJECT_NAME
     command: python3 -m setup
     restart: always
+    depends_on: 
+      - db
+
+  adminer:
+    container_name: "ai-mediator-adminer"
+    image: adminer
+    restart: always
+    ports:
+      - 8050:8080
+    depends_on: 
+      - db
+    env_file:
+      - '.env'

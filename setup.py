@@ -1,10 +1,12 @@
-import logging
+import asyncio
 
-from aiogram import executor
+from bot import start_bot
+from logging_conf import prepare_logging
 
-from bot.views import chatgpt_dispatcher
-
-logging.basicConfig(level="DEBUG")
+prepare_logging()
 
 if __name__ == "__main__":
-    executor.start_polling(chatgpt_dispatcher, skip_updates=True)
+    try:
+        asyncio.run(start_bot())
+    except KeyboardInterrupt:
+        pass
