@@ -25,7 +25,7 @@ class OpenAIRepo:
     async def send_request(
         self,
         prompt,
-        temperature=0,
+        temperature=0.7,
         max_tokens=2024,
         model="gpt-3.5-turbo",
         user=None,

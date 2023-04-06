@@ -13,4 +13,6 @@ AI Mediator is an aggregator for AI models. The goal of this project is to sprea
 1. Clone the repository.
 2. Install **docker** and **docker-compose**.
 3. Rename the **env.dist** file to **.env** and fill it with your data.
-4. Run the command `sudo docker-compose build && sudo docker-compose up -d`
+4. Run commands: 
+	`sudo docker-compose build` 
+	`sudo docker-compose up -d`
