@@ -14,6 +14,7 @@
 - Added admin-role filter
 - Added privacy policy optional config parametr, which asks each user to accept it
 - Added middleware to prevent unregistered users from using the bot
+- Added logging, and TelegramBot handler for it, which can send errors to telegram.
 
 #### IMPROVEMENTS:
 - Migration to asynchronus request with aiohttp
