@@ -18,7 +18,7 @@ class MenuController:
     async def get_start_data(self):
         text = (
             f"<b>\U0001f44b Приветствую! Я чат-бот, который познакомит тебя с ИИ. </b>"
-            "\n\nВведи /info для того чтобы узнать перечень команд, "
+            "\n\nВведи /start_gpt3 для того чтобы начать со мной диалог, "
             "либо выбери действие по кнопке в меню."
         )
         return text, get_menu_keyboard()
