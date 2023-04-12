@@ -1,9 +1,12 @@
 import json
 import logging
+from traceback import format_exc
 
 import aiohttp
 
 from config import config
+
+logger = logging.getLogger("telegram_bot.OpenAIRepo")
 
 
 class OpenAIRepo:
@@ -50,10 +53,14 @@ class OpenAIRepo:
             self.logger.debug("Sending request to OpenAI")
             async with self.session.post(config.openai_url, **kwargs) as resp:
                 if resp.status != 200:
+                    logger.error(
+                        f"failed to get response with status code: {resp.status}"
+                    )
                     return f"failed to get response with status code: {resp.status}"
 
                 result = await resp.json()
                 self.logger.debug(f"Response is: \n{result}")
                 return result["choices"][0]["message"]["content"]
         except Exception as e:
+            logger.error(format_exc())
             return f"failed to send request: {e}"
