@@ -1,7 +1,13 @@
+import logging
+from traceback import format_exc
+
+from sqlalchemy.exc import PendingRollbackError
 from sqlalchemy.orm import Session
 
 from bot.models.users import User, UsersRepository
 from bot.utils import get_menu_keyboard
+
+logger = logging.getLogger("telegram_bot.MenuController")
 
 
 class MenuController:
@@ -13,7 +19,11 @@ class MenuController:
     async def register_user(self, user: User):
         if not self.users_repo.get_by_id(user.id):
             self.users_repo.add(user)
-            self.session.commit()
+            try:
+                self.session.commit()
+            except PendingRollbackError:
+                logger.error(format_exc())
+                self.session.rollback()
 
     async def get_start_data(self):
         text = (
